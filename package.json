@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"description": "Utilities for Brazilian Income Tax.",
 	"scripts": {
-		"dev": "ts-node src/main.ts"
+		"dev": "tsx src/main.ts"
 	},
 	"author": {
 		"email": "leonardo.slemes@gmail.com",
@@ -18,7 +18,7 @@
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"prettier": "3.2.5",
-		"ts-node": "^10.9.2",
+		"tsx": "^4.7.2",
 		"typescript": "^5.4.3",
 		"typescript-eslint": "^7.5.0"
 	}
