@@ -1,4 +1,5 @@
 {
+	"type": "module",
 	"name": "brazilian-income-tax-helper",
 	"version": "0.1.0",
 	"description": "Utilities for Brazilian Income Tax.",
