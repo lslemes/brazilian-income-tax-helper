@@ -1,7 +1,10 @@
-import Transaction, { AssetType, TransactionType } from "./Transaction";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import Transaction from "./Transaction";
 
 describe("Transaction", () => {
 	it("should correctly calculate transaction value", () => {
-		const a = new Transaction(new Date(), TransactionType.Buy, { code: "", type: AssetType.Etf }, 400, 300);
+		const anything: any = undefined;
+		const transaction = new Transaction(anything, anything, anything, 263, 64.17);
+		expect(transaction.value).toBe(263 * 64.17);
 	});
 });
