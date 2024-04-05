@@ -56,8 +56,12 @@ describe("TaxCalculator", () => {
 		});
 	});
 
-	test("getMonetaryValue", () => {
-		expect(TaxCalculator["getMonetaryValue"](1 / 3)).toBe(0.33);
-		expect(TaxCalculator["getMonetaryValue"](2 / 3)).toBe(0.67);
+	test.each([
+		[1 / 3, 0.33],
+		[2 / 3, 0.67],
+		[0.999, 1],
+		[0.991, 0.99],
+	])("getMonetaryValue(%p) = %p", (value, monetaryValue) => {
+		expect(TaxCalculator["getMonetaryValue"](value)).toBe(monetaryValue);
 	});
 });
