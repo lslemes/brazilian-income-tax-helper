@@ -1,5 +1,5 @@
-import TaxCalculator from "./TaxCalculator.js";
-import Transaction, { AssetType } from "./Transaction.js";
+import TaxCalculator from "./TaxCalculator";
+import Transaction, { AssetType } from "./Transaction";
 
 export default class FiiTaxCalculator extends TaxCalculator {
 	constructor(transactions: Transaction[]) {

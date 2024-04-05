@@ -1,5 +1,5 @@
-import Transaction, { TransactionType } from "./Transaction.js";
-import { MONTHS } from "./utils.js";
+import Transaction, { TransactionType } from "./Transaction";
+import { MONTHS } from "./utils";
 
 export default abstract class TaxCalculator {
 	private readonly positionMaps = new Map<number, Map<string, number>>();

@@ -3,8 +3,11 @@ import StockTaxCalculator from "./StockTaxCalculator.js";
 import Transaction from "./Transaction.js";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "./TransactionMapper.js";
 
-const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
-const transactions: Transaction[] = csvTransactions.map(mapCsvTransactionToTransaction);
+async function main() {
+	const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
+	const transactions: Transaction[] = csvTransactions.map(mapCsvTransactionToTransaction);
 
-const stockTax = new StockTaxCalculator(transactions);
-console.log(stockTax.getSituation(2021));
+	const stockTax = new StockTaxCalculator(transactions);
+	console.log(stockTax.getSituation(2019));
+}
+main();

@@ -1,4 +1,4 @@
-import Transaction, { AssetType, TransactionType } from "./Transaction.js";
+import Transaction, { AssetType, TransactionType } from "./Transaction";
 
 export interface CsvTransaction {
 	data: string;

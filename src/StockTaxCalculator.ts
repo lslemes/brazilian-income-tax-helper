@@ -1,6 +1,6 @@
-import TaxCalculator from "./TaxCalculator.js";
-import Transaction, { AssetType, TransactionType } from "./Transaction.js";
-import { MONTHS } from "./utils.js";
+import TaxCalculator from "./TaxCalculator";
+import Transaction, { AssetType, TransactionType } from "./Transaction";
+import { MONTHS } from "./utils";
 
 export default class StockTaxCalculator extends TaxCalculator {
 	constructor(transactions: Transaction[]) {
