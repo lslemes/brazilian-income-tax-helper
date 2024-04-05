@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"description": "Utilities for Brazilian Income Tax.",
 	"scripts": {
-		"dev": "tsx src/main.ts"
+		"dev": "tsx watch src/main.ts"
 	},
 	"author": {
 		"email": "leonardo.slemes@gmail.com",
