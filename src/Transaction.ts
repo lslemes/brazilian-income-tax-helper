@@ -7,7 +7,10 @@ export default class Transaction {
 		readonly asset: Asset,
 		readonly quantity: number,
 		readonly price: number,
-	) {}
+	) {
+		if (quantity <= 0) throw new Error(`Transaction must have a postive quantity ${quantity}.`);
+		if (price < 0) throw new Error(`Transaction must not have negative price ${price}.`);
+	}
 
 	get value(): number {
 		return this.price * this.quantity;
