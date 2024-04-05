@@ -8,7 +8,7 @@ describe("Transaction", () => {
 		[12, 19.45, 12 * 19.45],
 		[64.46587313, 13.64597824, 64.46587313 * 13.64597824],
 		[10, 0, 0],
-	])("should correctly calculate transaction value", (quantity, price, value) => {
+	])("should correctly calculate transaction value (%p * %p = %p)", (quantity, price, value) => {
 		const transaction = new Transaction(anything, anything, anything, quantity, price);
 		expect(transaction.value).toBe(value);
 	});
