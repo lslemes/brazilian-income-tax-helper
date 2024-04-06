@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
 import { TransactionType } from "../transaction/Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "../transaction/TransactionMapper";
+import mapCsvTransactionToTransaction, { CsvTransaction } from "../transaction/mapCsvTransactionToTransaction";
 import { FLOATING_POINT_PRECISION } from "../utils";
 import TaxCalculator from "./TaxCalculator";
 

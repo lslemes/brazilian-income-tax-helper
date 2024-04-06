@@ -1,6 +1,6 @@
 import csv from "csvtojson";
 import { AssetType } from "../../transaction/Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/TransactionMapper";
+import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
 import { FLOATING_POINT_PRECISION } from "../../utils";
 import StockTaxCalculator from "./StockTaxCalculator";
 
