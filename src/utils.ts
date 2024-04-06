@@ -13,4 +13,6 @@ export const MONTHS = [
 	{ value: 11, label: "December" },
 ] as const;
 
+export type MonthLabel = (typeof MONTHS)[number]["label"];
+
 export const FLOATING_POINT_PRECISION = 11 as const;
