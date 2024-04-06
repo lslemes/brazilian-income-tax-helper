@@ -64,37 +64,37 @@ describe("StockTaxCalculator", () => {
 		[
 			2019,
 			new Map([
-				["ABEV3", { position: 37, situation: expect.closeTo(677.47, FLOATING_POINT_PRECISION) }],
-				["B3SA3", { position: 13, situation: expect.closeTo(445.79, FLOATING_POINT_PRECISION) }],
-				["BIDI3", { position: 10, situation: expect.closeTo(155.41, FLOATING_POINT_PRECISION) }],
-				["CIEL3", { position: 22, situation: expect.closeTo(178.16, FLOATING_POINT_PRECISION) }],
-				["EGIE3", { position: 14, situation: expect.closeTo(666.37, FLOATING_POINT_PRECISION) }],
-				["FLRY3", { position: 24, situation: expect.closeTo(691.44, FLOATING_POINT_PRECISION) }],
-				["GRND3", { position: 59, situation: expect.closeTo(685.58, FLOATING_POINT_PRECISION) }],
-				["HYPE3", { position: 21, situation: expect.closeTo(675.93, FLOATING_POINT_PRECISION) }],
-				["IRBR3", { position: 18, situation: expect.closeTo(667.26, FLOATING_POINT_PRECISION) }],
-				["ITUB3", { position: 22, situation: expect.closeTo(683.76, FLOATING_POINT_PRECISION) }],
-				["LREN3", { position: 13, situation: expect.closeTo(693.68, FLOATING_POINT_PRECISION) }],
-				["MDIA3", { position: 100, situation: expect.closeTo(3947.97, FLOATING_POINT_PRECISION) }],
-				["MULT3", { position: 22, situation: expect.closeTo(667.26, FLOATING_POINT_PRECISION) }],
-				["ODPV3", { position: 44, situation: expect.closeTo(694.76, FLOATING_POINT_PRECISION) }],
-				["PSSA3", { position: 11, situation: expect.closeTo(661.32, FLOATING_POINT_PRECISION) }],
-				["RADL3", { position: 9, situation: expect.closeTo(950.37, FLOATING_POINT_PRECISION) }],
-				["WEGE3", { position: 21, situation: expect.closeTo(686.7, FLOATING_POINT_PRECISION) }],
+				["ABEV3", { position: 37, value: expect.closeTo(677.47, FLOATING_POINT_PRECISION) }],
+				["B3SA3", { position: 13, value: expect.closeTo(445.79, FLOATING_POINT_PRECISION) }],
+				["BIDI3", { position: 10, value: expect.closeTo(155.41, FLOATING_POINT_PRECISION) }],
+				["CIEL3", { position: 22, value: expect.closeTo(178.16, FLOATING_POINT_PRECISION) }],
+				["EGIE3", { position: 14, value: expect.closeTo(666.37, FLOATING_POINT_PRECISION) }],
+				["FLRY3", { position: 24, value: expect.closeTo(691.44, FLOATING_POINT_PRECISION) }],
+				["GRND3", { position: 59, value: expect.closeTo(685.58, FLOATING_POINT_PRECISION) }],
+				["HYPE3", { position: 21, value: expect.closeTo(675.93, FLOATING_POINT_PRECISION) }],
+				["IRBR3", { position: 18, value: expect.closeTo(667.26, FLOATING_POINT_PRECISION) }],
+				["ITUB3", { position: 22, value: expect.closeTo(683.76, FLOATING_POINT_PRECISION) }],
+				["LREN3", { position: 13, value: expect.closeTo(693.68, FLOATING_POINT_PRECISION) }],
+				["MDIA3", { position: 100, value: expect.closeTo(3947.97, FLOATING_POINT_PRECISION) }],
+				["MULT3", { position: 22, value: expect.closeTo(667.26, FLOATING_POINT_PRECISION) }],
+				["ODPV3", { position: 44, value: expect.closeTo(694.76, FLOATING_POINT_PRECISION) }],
+				["PSSA3", { position: 11, value: expect.closeTo(661.32, FLOATING_POINT_PRECISION) }],
+				["RADL3", { position: 9, value: expect.closeTo(950.37, FLOATING_POINT_PRECISION) }],
+				["WEGE3", { position: 21, value: expect.closeTo(686.7, FLOATING_POINT_PRECISION) }],
 			]),
 		],
 		[
 			2020,
 			new Map([
-				["ABEV3", { position: 55, situation: expect.closeTo(1001.91, FLOATING_POINT_PRECISION) }],
-				["CIEL3", { position: 22, situation: expect.closeTo(178.16, FLOATING_POINT_PRECISION) }],
-				["EGIE3", { position: 19, situation: expect.closeTo(927.07, FLOATING_POINT_PRECISION) }],
-				["FLRY3", { position: 33, situation: expect.closeTo(966.48, FLOATING_POINT_PRECISION) }],
-				["GRND3", { position: 87, situation: expect.closeTo(1026.57, FLOATING_POINT_PRECISION) }],
-				["IRBR3", { position: 25, situation: expect.closeTo(940.61, FLOATING_POINT_PRECISION) }],
-				["LREN3", { position: 19, situation: expect.closeTo(1019.67, FLOATING_POINT_PRECISION) }],
-				["MULT3", { position: 31, situation: expect.closeTo(968.76, FLOATING_POINT_PRECISION) }],
-				["ODPV3", { position: 61, situation: expect.closeTo(983.93, FLOATING_POINT_PRECISION) }],
+				["ABEV3", { position: 55, value: expect.closeTo(1001.91, FLOATING_POINT_PRECISION) }],
+				["CIEL3", { position: 22, value: expect.closeTo(178.16, FLOATING_POINT_PRECISION) }],
+				["EGIE3", { position: 19, value: expect.closeTo(927.07, FLOATING_POINT_PRECISION) }],
+				["FLRY3", { position: 33, value: expect.closeTo(966.48, FLOATING_POINT_PRECISION) }],
+				["GRND3", { position: 87, value: expect.closeTo(1026.57, FLOATING_POINT_PRECISION) }],
+				["IRBR3", { position: 25, value: expect.closeTo(940.61, FLOATING_POINT_PRECISION) }],
+				["LREN3", { position: 19, value: expect.closeTo(1019.67, FLOATING_POINT_PRECISION) }],
+				["MULT3", { position: 31, value: expect.closeTo(968.76, FLOATING_POINT_PRECISION) }],
+				["ODPV3", { position: 61, value: expect.closeTo(983.93, FLOATING_POINT_PRECISION) }],
 			]),
 		],
 		[2021, new Map()],
@@ -103,6 +103,135 @@ describe("StockTaxCalculator", () => {
 		[2024, new Map()],
 	])("getSituation(%p)", (year, expectedSituation) => {
 		expect(stockTaxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
+	});
+
+	test.each([
+		[
+			2019,
+			new Map([
+				["ABEV3", { position: 37, lastValue: 0, currentValue: expect.closeTo(677.47, FLOATING_POINT_PRECISION) }],
+				["B3SA3", { position: 13, lastValue: 0, currentValue: expect.closeTo(445.79, FLOATING_POINT_PRECISION) }],
+				["BIDI3", { position: 10, lastValue: 0, currentValue: expect.closeTo(155.41, FLOATING_POINT_PRECISION) }],
+				["CIEL3", { position: 22, lastValue: 0, currentValue: expect.closeTo(178.16, FLOATING_POINT_PRECISION) }],
+				["EGIE3", { position: 14, lastValue: 0, currentValue: expect.closeTo(666.37, FLOATING_POINT_PRECISION) }],
+				["FLRY3", { position: 24, lastValue: 0, currentValue: expect.closeTo(691.44, FLOATING_POINT_PRECISION) }],
+				["GRND3", { position: 59, lastValue: 0, currentValue: expect.closeTo(685.58, FLOATING_POINT_PRECISION) }],
+				["HYPE3", { position: 21, lastValue: 0, currentValue: expect.closeTo(675.93, FLOATING_POINT_PRECISION) }],
+				["IRBR3", { position: 18, lastValue: 0, currentValue: expect.closeTo(667.26, FLOATING_POINT_PRECISION) }],
+				["ITUB3", { position: 22, lastValue: 0, currentValue: expect.closeTo(683.76, FLOATING_POINT_PRECISION) }],
+				["LREN3", { position: 13, lastValue: 0, currentValue: expect.closeTo(693.68, FLOATING_POINT_PRECISION) }],
+				["MDIA3", { position: 100, lastValue: 0, currentValue: expect.closeTo(3947.97, FLOATING_POINT_PRECISION) }],
+				["MULT3", { position: 22, lastValue: 0, currentValue: expect.closeTo(667.26, FLOATING_POINT_PRECISION) }],
+				["ODPV3", { position: 44, lastValue: 0, currentValue: expect.closeTo(694.76, FLOATING_POINT_PRECISION) }],
+				["PSSA3", { position: 11, lastValue: 0, currentValue: expect.closeTo(661.32, FLOATING_POINT_PRECISION) }],
+				["RADL3", { position: 9, lastValue: 0, currentValue: expect.closeTo(950.37, FLOATING_POINT_PRECISION) }],
+				["WEGE3", { position: 21, lastValue: 0, currentValue: expect.closeTo(686.7, FLOATING_POINT_PRECISION) }],
+			]),
+		],
+		[
+			2020,
+			new Map([
+				[
+					"ABEV3",
+					{
+						position: 55,
+						lastValue: expect.closeTo(677.47, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(1001.91, FLOATING_POINT_PRECISION),
+					},
+				],
+				["B3SA3", { position: 0, lastValue: expect.closeTo(445.79, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["BIDI3", { position: 0, lastValue: expect.closeTo(155.41, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				[
+					"CIEL3",
+					{
+						position: 22,
+						lastValue: expect.closeTo(178.16, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(178.16, FLOATING_POINT_PRECISION),
+					},
+				],
+				[
+					"EGIE3",
+					{
+						position: 19,
+						lastValue: expect.closeTo(666.37, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(927.07, FLOATING_POINT_PRECISION),
+					},
+				],
+				[
+					"FLRY3",
+					{
+						position: 33,
+						lastValue: expect.closeTo(691.44, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(966.48, FLOATING_POINT_PRECISION),
+					},
+				],
+				[
+					"GRND3",
+					{
+						position: 87,
+						lastValue: expect.closeTo(685.58, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(1026.57, FLOATING_POINT_PRECISION),
+					},
+				],
+				["HYPE3", { position: 0, lastValue: expect.closeTo(675.93, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				[
+					"IRBR3",
+					{
+						position: 25,
+						lastValue: expect.closeTo(667.26, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(940.61, FLOATING_POINT_PRECISION),
+					},
+				],
+				["ITUB3", { position: 0, lastValue: expect.closeTo(683.76, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				[
+					"LREN3",
+					{
+						position: 19,
+						lastValue: expect.closeTo(693.68, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(1019.67, FLOATING_POINT_PRECISION),
+					},
+				],
+				["MDIA3", { position: 0, lastValue: expect.closeTo(3947.97, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				[
+					"MULT3",
+					{
+						position: 31,
+						lastValue: expect.closeTo(667.26, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(968.76, FLOATING_POINT_PRECISION),
+					},
+				],
+				[
+					"ODPV3",
+					{
+						position: 61,
+						lastValue: expect.closeTo(694.76, FLOATING_POINT_PRECISION),
+						currentValue: expect.closeTo(983.93, FLOATING_POINT_PRECISION),
+					},
+				],
+				["PSSA3", { position: 0, lastValue: expect.closeTo(661.32, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["RADL3", { position: 0, lastValue: expect.closeTo(950.37, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["WEGE3", { position: 0, lastValue: expect.closeTo(686.7, FLOATING_POINT_PRECISION), currentValue: 0 }],
+			]),
+		],
+		[
+			2021,
+			new Map([
+				["ABEV3", { position: 0, lastValue: expect.closeTo(1001.91, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["CIEL3", { position: 0, lastValue: expect.closeTo(178.16, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["EGIE3", { position: 0, lastValue: expect.closeTo(927.07, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["FLRY3", { position: 0, lastValue: expect.closeTo(966.48, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["GRND3", { position: 0, lastValue: expect.closeTo(1026.57, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["IRBR3", { position: 0, lastValue: expect.closeTo(940.61, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["LREN3", { position: 0, lastValue: expect.closeTo(1019.67, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["MULT3", { position: 0, lastValue: expect.closeTo(968.76, FLOATING_POINT_PRECISION), currentValue: 0 }],
+				["ODPV3", { position: 0, lastValue: expect.closeTo(983.93, FLOATING_POINT_PRECISION), currentValue: 0 }],
+			]),
+		],
+		[2022, new Map()],
+		[2023, new Map()],
+		[2024, new Map()],
+	])("getSituationReport(%p)", (year, expectedReport) => {
+		expect(stockTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
 	});
 
 	test.each([

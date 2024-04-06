@@ -28,4 +28,26 @@ describe("SubscriptionTaxCalculator", () => {
 	])("getMonthlyProfit(%p)", (year, expectedProfits) => {
 		expect(subscriptionTaxCalculator["getMonthlyProfit"](year)).toStrictEqual(expectedProfits);
 	});
+
+	test.each([
+		[2019, new Map()],
+		[2020, new Map()],
+		[2021, new Map()],
+		[2022, new Map()],
+		[2023, new Map()],
+		[2024, new Map()],
+	])("getSituation(%p)", (year, expectedSituation) => {
+		expect(subscriptionTaxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
+	});
+
+	test.each([
+		[2019, new Map()],
+		[2020, new Map()],
+		[2021, new Map()],
+		[2022, new Map()],
+		[2023, new Map()],
+		[2024, new Map()],
+	])("getSituationReport(%p)", (year, expectedReport) => {
+		expect(subscriptionTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
+	});
 });
