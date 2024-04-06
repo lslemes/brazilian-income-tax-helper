@@ -83,25 +83,25 @@ export default abstract class TaxCalculator {
 		return { processedTransactions, positionMapByYear, averagePriceMapByYear };
 	}
 
-	getMonthlyProfit() {
-		return MONTHS.map((month) => ({
-			month: month.label,
-			profit: TaxCalculator.getMonetaryValue(
-				this.transactions
-					.filter((t) => t.profit !== null && t.date.getMonth() === month.value)
-					.reduce((totalProfit, t) => totalProfit + (t.profit ?? 0), 0),
-			),
-		}));
+	protected getMonthlyProfit(year: number) {
+		const yearTransactions = this.transactions.filter((transaction) => transaction.date.getFullYear() === year);
+		return MONTHS.map((month) =>
+			yearTransactions
+				.filter(
+					(transaction) => transaction.type === TransactionType.Sell && transaction.date.getMonth() === month.value,
+				)
+				.reduce((totalProfit, transaction) => totalProfit + (transaction.profit ?? 0), 0),
+		);
 	}
 
-	getSituation(year: number) {
+	protected getSituation(year: number) {
 		const situationMap = new Map<string, { position: number; situation: number }>();
-		for (const [assetCode, position] of this.positionMapByYear.get(year)!) {
-			if (position < 0) throw new Error(`Negative position ${position} ${assetCode}.`);
-			const averagePriceMap = this.averagePriceMapByYear.get(year)!;
-			situationMap.set(assetCode, { position: position, situation: position * averagePriceMap.get(assetCode)! });
+		const positionMap = this.positionMapByYear.get(year);
+		if (!positionMap) return situationMap;
+		for (const [assetCode, position] of positionMap) {
+			const averagePrice = this.averagePriceMapByYear.get(year)!.get(assetCode)!;
+			situationMap.set(assetCode, { position, situation: position * averagePrice });
 		}
-		const sortedSituationMap = new Map([...situationMap].sort());
-		return sortedSituationMap;
+		return situationMap;
 	}
 }
