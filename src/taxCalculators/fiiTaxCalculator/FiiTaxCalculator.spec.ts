@@ -1,8 +1,8 @@
 import csv from "csvtojson";
+import { AssetType } from "../../transaction/Transaction";
+import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/TransactionMapper";
+import { FLOATING_POINT_PRECISION } from "../../utils";
 import FiiTaxCalculator from "./FiiTaxCalculator";
-import { AssetType } from "./Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "./TransactionMapper";
-import { FLOATING_POINT_PRECISION } from "./utils";
 
 describe("FiiTaxCalculator", () => {
 	let fiiTaxCalculator: FiiTaxCalculator;

@@ -1,6 +1,6 @@
-import TaxCalculator from "./TaxCalculator";
-import Transaction, { AssetType, TransactionType } from "./Transaction";
-import { MONTHS } from "./utils";
+import Transaction, { AssetType, TransactionType } from "../../transaction/Transaction";
+import { MONTHS } from "../../utils";
+import TaxCalculator from "../TaxCalculator";
 
 export default class StockTaxCalculator extends TaxCalculator {
 	constructor(transactions: Transaction[]) {

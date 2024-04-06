@@ -1,6 +1,6 @@
 import csv from "csvtojson";
-import Transaction from "./Transaction.js";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "./TransactionMapper.js";
+import Transaction from "./transaction/Transaction.js";
+import mapCsvTransactionToTransaction, { CsvTransaction } from "./transaction/TransactionMapper.js";
 
 async function main() {
 	const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");

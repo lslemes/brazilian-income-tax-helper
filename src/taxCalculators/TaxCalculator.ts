@@ -1,5 +1,5 @@
-import Transaction, { TransactionType } from "./Transaction";
-import { MONTHS } from "./utils";
+import Transaction, { TransactionType } from "../transaction/Transaction";
+import { MONTHS } from "../utils";
 
 export default abstract class TaxCalculator {
 	protected readonly transactions: Transaction[];
