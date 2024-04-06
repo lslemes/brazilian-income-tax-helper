@@ -60,15 +60,6 @@ describe("TaxCalculator", () => {
 		});
 	});
 
-	test.each([
-		[1 / 3, 0.33],
-		[2 / 3, 0.67],
-		[0.999, 1],
-		[0.991, 0.99],
-	])("getMonetaryValue(%p) = %p", (value, monetaryValue) => {
-		expect(TaxCalculator["getMonetaryValue"](value)).toBe(monetaryValue);
-	});
-
 	describe("getYearlyTaxData", () => {
 		let yearlyTaxData: ReturnType<(typeof TaxCalculator)["getYearlyTaxData"]>;
 
@@ -243,5 +234,14 @@ describe("TaxCalculator", () => {
 				]),
 			);
 		});
+	});
+
+	test.each([
+		[1 / 3, 0.33],
+		[2 / 3, 0.67],
+		[0.999, 1],
+		[0.991, 0.99],
+	])("getMonetaryValue(%p) = %p", (value, monetaryValue) => {
+		expect(TaxCalculator["getMonetaryValue"](value)).toBe(monetaryValue);
 	});
 });

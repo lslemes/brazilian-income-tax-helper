@@ -27,10 +27,6 @@ export default abstract class TaxCalculator {
 		return (currentPosition * currentAveragePrice + valueIncrement) / (currentPosition + positionIncrement);
 	}
 
-	protected static getMonetaryValue(value: number) {
-		return Number(value.toFixed(2));
-	}
-
 	private static getYearlyTaxData(transactions: Transaction[]) {
 		const positionByAssetCode = new Map<string, number>();
 		const averagePriceByAssetCode = new Map<string, number>();
@@ -83,10 +79,14 @@ export default abstract class TaxCalculator {
 		return { processedTransactions, positionMapByYear, averagePriceMapByYear };
 	}
 
+	protected static getMonetaryValue(value: number) {
+		return Number(value.toFixed(2));
+	}
+
 	protected getMonthlyProfit(year: number) {
-		const yearTransactions = this.transactions.filter((transaction) => transaction.date.getFullYear() === year);
+		const transactions = this.transactions.filter((transaction) => transaction.date.getFullYear() === year);
 		return MONTHS.map((month) =>
-			yearTransactions
+			transactions
 				.filter(
 					(transaction) => transaction.type === TransactionType.Sell && transaction.date.getMonth() === month.value,
 				)
