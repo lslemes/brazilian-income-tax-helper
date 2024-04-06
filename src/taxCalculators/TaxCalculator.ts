@@ -136,11 +136,18 @@ export default abstract class TaxCalculator {
 		const situationReport = this.getSituationReport(year);
 		const monthlyProfit = this.getMonthlyProfit(year).map((profit, i) => ({
 			month: MONTHS[i].label,
-			profit: TaxCalculator.getMonetaryValue(profit),
+			profit,
 		}));
 		const darfs = monthlyProfit
 			.filter(({ profit }) => profit > 0)
 			.map(({ month, profit }) => new Darf(year, month, TaxCalculator.getMonetaryValue(profit * darfRate)));
-		return { situationReport, monthlyProfit, darfs };
+		return {
+			situationReport,
+			monthlyProfit: monthlyProfit.map(({ month, profit }) => ({
+				month,
+				profit: TaxCalculator.getMonetaryValue(profit),
+			})),
+			darfs,
+		};
 	}
 }
