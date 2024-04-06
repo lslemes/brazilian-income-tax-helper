@@ -1,3 +1,4 @@
+import Darf from "../darf/Darf";
 import Transaction, { TransactionType } from "../transaction/Transaction";
 import { MONTHS } from "../utils";
 
@@ -129,5 +130,17 @@ export default abstract class TaxCalculator {
 
 		const sortedSituationReport = new Map([...situationReport].sort());
 		return sortedSituationReport;
+	}
+
+	protected getTaxReport(year: number, darfRate: number) {
+		const situationReport = this.getSituationReport(year);
+		const monthlyProfit = this.getMonthlyProfit(year).map((profit, i) => ({
+			month: MONTHS[i].label,
+			profit: TaxCalculator.getMonetaryValue(profit),
+		}));
+		const darfs = monthlyProfit
+			.filter(({ profit }) => profit > 0)
+			.map(({ month, profit }) => new Darf(year, month, TaxCalculator.getMonetaryValue(profit * darfRate)));
+		return { situationReport, monthlyProfit, darfs };
 	}
 }
