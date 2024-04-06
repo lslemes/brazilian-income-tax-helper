@@ -191,7 +191,8 @@ data,operacao,classe,ticker,quantidade,preco,corretora
 2020-07-02,compra,FII,XPML11,8,103.46,Clear
 2020-07-03,compra,ação,ITUB3,16,24.56,Clear
 2020-07-03,compra,ação,LREN3,1,40.99,Clear
-2020-07-03,compra,ação,PSSA3,8,52.40,Clear
+2020-07-03,compra,ação,PSSA3,8,52.40,Clear,
+2020-07-15,compra,subscricao,IRBR1,8,0,Clear,
 2020-07-27,venda,ação,B3SA3,5,65.95,Clear
 2020-07-27,venda,ação,B3SA3,14,65.95,Clear
 2020-07-27,venda,ação,HYPE3,29,35.85,Clear
