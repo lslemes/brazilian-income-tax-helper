@@ -4,31 +4,28 @@ import { MONTHS } from "./utils";
 
 export default class StockTaxCalculator extends TaxCalculator {
 	constructor(transactions: Transaction[]) {
-		super(transactions.filter((t) => t.asset.type === AssetType.Stock));
+		super(transactions.filter((transaction) => transaction.asset.type === AssetType.Stock));
 	}
 
-	getMonthlySoldValue() {
-		return MONTHS.map((month) => ({
-			month: month.label,
-			amount: StockTaxCalculator.getMonetaryValue(
-				this.transactions
-					.filter((t) => t.date.getMonth() === month.value && t.type === TransactionType.Sell)
-					.reduce((total, t) => total + t.value, 0),
-			),
-		}));
+	private getMonthlySalesVolume(year: number) {
+		const transactions = this.transactions.filter((transaction) => transaction.date.getFullYear() === year);
+		return MONTHS.map((month) =>
+			transactions
+				.filter(
+					(transaction) => transaction.date.getMonth() === month.value && transaction.type === TransactionType.Sell,
+				)
+				.reduce((totalValue, transaction) => totalValue + transaction.value, 0),
+		);
 	}
 
-	getProfitByStock() {
-		const profitMap = new Map<string, number>();
-
-		for (const t of this.transactions) {
-			const assetCode = t.asset.code;
-			if (t.profit) profitMap.set(assetCode, (profitMap.get(assetCode) ?? 0) + t.profit);
+	private getProfitByStock(year: number) {
+		const profitByStock = new Map<string, number>();
+		const transactions = this.transactions.filter((transaction) => transaction.date.getFullYear() === year);
+		for (const transaction of transactions) {
+			const assetCode = transaction.asset.code;
+			if (transaction.profit !== null)
+				profitByStock.set(assetCode, (profitByStock.get(assetCode) ?? 0) + transaction.profit);
 		}
-
-		for (const [key, value] of profitMap) profitMap.set(key, StockTaxCalculator.getMonetaryValue(value));
-
-		const sortedProfitMap = new Map([...profitMap.entries()].sort());
-		return sortedProfitMap;
+		return profitByStock;
 	}
 }
