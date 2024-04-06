@@ -94,14 +94,40 @@ export default abstract class TaxCalculator {
 		);
 	}
 
-	protected getSituation(year: number) {
-		const situationMap = new Map<string, { position: number; situation: number }>();
+	private getSituation(year: number) {
+		const situationMap = new Map<string, { position: number; value: number }>();
 		const positionMap = this.positionMapByYear.get(year);
 		if (!positionMap) return situationMap;
 		for (const [assetCode, position] of positionMap) {
 			const averagePrice = this.averagePriceMapByYear.get(year)!.get(assetCode)!;
-			situationMap.set(assetCode, { position, situation: position * averagePrice });
+			situationMap.set(assetCode, { position, value: position * averagePrice });
 		}
 		return situationMap;
+	}
+
+	protected getSituationReport(year: number) {
+		const lastSituation = this.getSituation(year - 1);
+		const currentSituation = this.getSituation(year);
+		const situationReport = new Map<string, { position: number; lastValue: number; currentValue: number }>();
+
+		for (const [ticker, situation] of currentSituation) {
+			const lastValue = lastSituation.get(ticker)?.value ?? 0;
+			situationReport.set(ticker, {
+				position: situation.position,
+				lastValue: TaxCalculator.getMonetaryValue(lastValue),
+				currentValue: TaxCalculator.getMonetaryValue(situation.value),
+			});
+		}
+		for (const [ticker, situation] of lastSituation) {
+			if (situationReport.has(ticker)) continue;
+			situationReport.set(ticker, {
+				position: 0,
+				lastValue: TaxCalculator.getMonetaryValue(situation.value),
+				currentValue: 0,
+			});
+		}
+
+		const sortedSituationReport = new Map([...situationReport].sort());
+		return sortedSituationReport;
 	}
 }
