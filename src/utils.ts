@@ -12,3 +12,5 @@ export const MONTHS = [
 	{ value: 10, label: "November" },
 	{ value: 11, label: "December" },
 ] as const;
+
+export const FLOATING_POINT_PRECISION = 11 as const;
