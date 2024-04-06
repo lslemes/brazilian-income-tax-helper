@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
 import TaxCalculator from "./TaxCalculator";
-import Transaction, { TransactionType } from "./Transaction";
+import { TransactionType } from "./Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "./TransactionMapper";
 
 describe("TaxCalculator", () => {
@@ -69,29 +69,28 @@ describe("TaxCalculator", () => {
 	});
 
 	describe("getYearlyTaxData", () => {
-		let transactions: Transaction[];
+		let yearlyTaxData: ReturnType<(typeof TaxCalculator)["getYearlyTaxData"]>;
 
 		beforeAll(async () => {
 			const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
-			transactions = csvTransactions.map(mapCsvTransactionToTransaction);
+			const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
+			yearlyTaxData = TaxCalculator["getYearlyTaxData"](transactions);
 		});
 
 		it("should return buy transactions with no profits", async () => {
-			const { transactionsWithProfit } = TaxCalculator["getYearlyTaxData"](transactions);
-			const buyTransactions = transactionsWithProfit.filter((transaction) => transaction.type === TransactionType.Buy);
+			const transactions = yearlyTaxData.processedTransactions;
+			const buyTransactions = transactions.filter((transaction) => transaction.type === TransactionType.Buy);
 			for (const transaction of buyTransactions) expect(transaction.profit).toBeNull();
 		});
 
 		it("should return sell transactions with profits", async () => {
-			const { transactionsWithProfit } = TaxCalculator["getYearlyTaxData"](transactions);
-			const sellTransactions = transactionsWithProfit.filter(
-				(transaction) => transaction.type === TransactionType.Sell,
-			);
+			const transactions = yearlyTaxData.processedTransactions;
+			const sellTransactions = transactions.filter((transaction) => transaction.type === TransactionType.Sell);
 			for (const transaction of sellTransactions) expect(transaction.profit).toEqual(expect.any(Number));
 		});
 
 		it("should return a yearly position map", () => {
-			const { positionMapByYear } = TaxCalculator["getYearlyTaxData"](transactions);
+			const { positionMapByYear } = yearlyTaxData;
 			expect(positionMapByYear.get(2019)).toStrictEqual(
 				new Map([
 					["ABEV3", 37],
@@ -168,7 +167,7 @@ describe("TaxCalculator", () => {
 		});
 
 		it("should return a yearly average price map", () => {
-			const { averagePriceMapByYear } = TaxCalculator["getYearlyTaxData"](transactions);
+			const { averagePriceMapByYear } = yearlyTaxData;
 			expect(averagePriceMapByYear.get(2019)).toStrictEqual(
 				new Map([
 					["ABEV3", expect.closeTo(677.47 / 37, 12)],

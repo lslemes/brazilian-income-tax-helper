@@ -7,9 +7,9 @@ export default abstract class TaxCalculator {
 	private readonly averagePriceMapByYear = new Map<number, Map<string, number>>();
 
 	constructor(transactions: Transaction[]) {
-		const { averagePriceMapByYear, positionMapByYear, transactionsWithProfit } =
+		const { averagePriceMapByYear, positionMapByYear, processedTransactions } =
 			TaxCalculator.getYearlyTaxData(transactions);
-		this.transactions = transactionsWithProfit;
+		this.transactions = processedTransactions;
 		this.averagePriceMapByYear = averagePriceMapByYear;
 		this.positionMapByYear = positionMapByYear;
 	}
@@ -38,7 +38,7 @@ export default abstract class TaxCalculator {
 		const averagePriceMapByYear = new Map<number, typeof averagePriceByAssetCode>();
 
 		let currentYear: number | null = null;
-		const transactionsWithProfit = transactions
+		const processedTransactions = transactions
 			.toSorted((a, b) => a.date.getTime() - b.date.getTime())
 			.map((transaction) => {
 				const year = transaction.date.getFullYear();
@@ -80,7 +80,7 @@ export default abstract class TaxCalculator {
 			averagePriceMapByYear.set(currentYear, new Map(averagePriceByAssetCode));
 		}
 
-		return { transactionsWithProfit, positionMapByYear, averagePriceMapByYear };
+		return { processedTransactions, positionMapByYear, averagePriceMapByYear };
 	}
 
 	getMonthlyProfit() {
