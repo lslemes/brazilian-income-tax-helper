@@ -2,9 +2,9 @@ import Transaction, { TransactionType } from "./Transaction";
 import { MONTHS } from "./utils";
 
 export default abstract class TaxCalculator {
+	protected readonly transactions: Transaction[];
 	private readonly positionMapByYear = new Map<number, Map<string, number>>();
 	private readonly averagePriceMapByYear = new Map<number, Map<string, number>>();
-	protected readonly transactions: Transaction[];
 
 	constructor(transactions: Transaction[]) {
 		const { averagePriceMapByYear, positionMapByYear, transactionsWithProfit } =
@@ -38,41 +38,43 @@ export default abstract class TaxCalculator {
 		const averagePriceMapByYear = new Map<number, typeof averagePriceByAssetCode>();
 
 		let currentYear: number | null = null;
-		const transactionsWithProfit = transactions.map((transaction) => {
-			const year = transaction.date.getFullYear();
-			if (currentYear === null) currentYear = year;
-			while (year > currentYear) {
-				positionMapByYear.set(currentYear, new Map(positionByAssetCode));
-				averagePriceMapByYear.set(currentYear, new Map(averagePriceByAssetCode));
-				currentYear++;
-			}
+		const transactionsWithProfit = transactions
+			.toSorted((a, b) => a.date.getTime() - b.date.getTime())
+			.map((transaction) => {
+				const year = transaction.date.getFullYear();
+				if (currentYear === null) currentYear = year;
+				while (year > currentYear) {
+					positionMapByYear.set(currentYear, new Map(positionByAssetCode));
+					averagePriceMapByYear.set(currentYear, new Map(averagePriceByAssetCode));
+					currentYear++;
+				}
 
-			const { quantity, value, type } = transaction;
-			const assetCode = transaction.asset.code;
-			const position = positionByAssetCode.get(assetCode) ?? 0;
-			const averagePrice = averagePriceByAssetCode.get(assetCode) ?? 0;
+				const { quantity, value, type } = transaction;
+				const assetCode = transaction.asset.code;
+				const position = positionByAssetCode.get(assetCode) ?? 0;
+				const averagePrice = averagePriceByAssetCode.get(assetCode) ?? 0;
 
-			switch (type) {
-				case TransactionType.Buy:
-					positionByAssetCode.set(assetCode, position + quantity);
-					averagePriceByAssetCode.set(
-						assetCode,
-						TaxCalculator.getUpdatedAveragePrice(position, averagePrice, quantity, value),
-					);
-					break;
-				case TransactionType.Sell:
-					transaction.profit = value - quantity * averagePrice;
-					if (position - quantity <= 0) {
-						averagePriceByAssetCode.delete(assetCode);
-						positionByAssetCode.delete(assetCode);
-					} else {
-						positionByAssetCode.set(assetCode, position - quantity);
-					}
-					break;
-			}
+				switch (type) {
+					case TransactionType.Buy:
+						positionByAssetCode.set(assetCode, position + quantity);
+						averagePriceByAssetCode.set(
+							assetCode,
+							TaxCalculator.getUpdatedAveragePrice(position, averagePrice, quantity, value),
+						);
+						break;
+					case TransactionType.Sell:
+						transaction.profit = value - quantity * averagePrice;
+						if (position - quantity <= 0) {
+							averagePriceByAssetCode.delete(assetCode);
+							positionByAssetCode.delete(assetCode);
+						} else {
+							positionByAssetCode.set(assetCode, position - quantity);
+						}
+						break;
+				}
 
-			return transaction;
-		});
+				return transaction;
+			});
 		if (currentYear !== null) {
 			positionMapByYear.set(currentYear, new Map(positionByAssetCode));
 			averagePriceMapByYear.set(currentYear, new Map(averagePriceByAssetCode));

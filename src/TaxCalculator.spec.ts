@@ -68,10 +68,6 @@ describe("TaxCalculator", () => {
 		expect(TaxCalculator["getMonetaryValue"](value)).toBe(monetaryValue);
 	});
 
-	describe("getMonthlyProfit", () => {});
-
-	describe("getSituation", () => {});
-
 	describe("getYearlyTaxData", () => {
 		let transactions: Transaction[];
 
@@ -173,7 +169,6 @@ describe("TaxCalculator", () => {
 
 		it("should return a yearly average price map", () => {
 			const { averagePriceMapByYear } = TaxCalculator["getYearlyTaxData"](transactions);
-			console.log("averagePriceMapByYear :>> ", averagePriceMapByYear);
 			expect(averagePriceMapByYear.get(2019)).toStrictEqual(
 				new Map([
 					["ABEV3", expect.closeTo(677.47 / 37, 12)],
