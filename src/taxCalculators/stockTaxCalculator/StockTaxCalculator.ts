@@ -1,8 +1,8 @@
 import Darf from "../../darf/Darf";
 import { getMonetaryValue } from "../../taxMath/taxMathUtils";
 import Transaction, { AssetType, TransactionType } from "../../transaction/Transaction";
-import { MONTHS } from "../../utils";
-import TaxCalculator from "../TaxCalculator";
+import { MONTHS, MonthLabel } from "../../utils";
+import TaxCalculator, { TaxReport } from "../TaxCalculator";
 
 export default class StockTaxCalculator extends TaxCalculator {
 	private static readonly DARF_RATE = 0.15;
@@ -23,7 +23,7 @@ export default class StockTaxCalculator extends TaxCalculator {
 		);
 	}
 
-	private getProfitByMonth(year: number, month: number) {
+	private getProfitByMonth(year: number, month: number): number {
 		return this.transactions
 			.filter(
 				(transaction) =>
@@ -45,7 +45,7 @@ export default class StockTaxCalculator extends TaxCalculator {
 			.reduce((totalProfit, profit) => totalProfit + profit, 0);
 	}
 
-	protected getDarfs(year: number, monthlyProfitLoss: number[]) {
+	protected getDarfs(year: number, monthlyProfitLoss: number[]): Darf[] {
 		const monthlySalesVolume = this.getMonthlySalesVolume(year);
 		return MONTHS.filter(
 			(month) =>
@@ -57,9 +57,10 @@ export default class StockTaxCalculator extends TaxCalculator {
 		);
 	}
 
-	public getTaxReport(year: number) {
+	public getTaxReport(
+		year: number,
+	): TaxReport & { monthlySalesVolume: { month: MonthLabel; salesVolume: number }[]; annualExemptProfit: number } {
 		const monthlySalesVolume = this.getMonthlySalesVolume(year);
-
 		return {
 			...super.getTaxReport(year, StockTaxCalculator.DARF_RATE),
 			monthlySalesVolume: monthlySalesVolume.map((volume, i) => ({

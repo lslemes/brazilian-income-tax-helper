@@ -15,7 +15,7 @@ interface SituationReport {
 }
 
 type SituationByAssetCode = Map<string, Situation>;
-export type SituationReportByAssetCode = Map<string, SituationReport>;
+type SituationReportByAssetCode = Map<string, SituationReport>;
 
 type PositionByAssetCode = Map<string, number>;
 type PositionMapByYear = Map<number, PositionByAssetCode>;
@@ -29,7 +29,7 @@ export interface YearlyTaxData {
 	averagePriceMapByYear: AveragePriceMapByYear;
 }
 
-interface TaxReport {
+export interface TaxReport {
 	situationReportByAssetCode: SituationReportByAssetCode;
 	monthlyProfitLoss: { month: MonthLabel; profitLoss: number }[];
 	darfs: Darf[];
