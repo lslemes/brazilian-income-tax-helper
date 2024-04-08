@@ -1,7 +1,9 @@
 import csv from "csvtojson";
+import Darf from "../../darf/Darf";
+import { getExpectedTaxReport } from "../../testUtils";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
-import { FLOATING_POINT_PRECISION } from "../../utils";
+import { MONTHS } from "../../utils";
 import SubscriptionTaxCalculator from "./SubscriptionTaxCalculator";
 
 describe("SubscriptionTaxCalculator", () => {
@@ -20,13 +22,13 @@ describe("SubscriptionTaxCalculator", () => {
 
 	test.each([
 		[2019, new Array(12).fill(0)],
-		[2020, [0, 0, 0, 0, 0, 0, expect.closeTo(9.28, FLOATING_POINT_PRECISION), 0, 0, 0, 0, 0]],
+		[2020, [0, 0, 0, 0, 0, 0, 9.28, 0, 0, 0, 0, 0]],
 		[2021, new Array(12).fill(0)],
 		[2022, new Array(12).fill(0)],
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
-	])("getMonthlyProfit(%p)", (year, expectedProfits) => {
-		expect(subscriptionTaxCalculator["getMonthlyProfit"](year)).toStrictEqual(expectedProfits);
+	])("getMonthlyProfitLoss(%p)", (year, expectedProfitLoss) => {
+		expect(subscriptionTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfitLoss);
 	});
 
 	test.each([
@@ -49,5 +51,19 @@ describe("SubscriptionTaxCalculator", () => {
 		[2024, new Map()],
 	])("getSituationReport(%p)", (year, expectedReport) => {
 		expect(subscriptionTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
+	});
+
+	test.each([
+		[2019, getExpectedTaxReport(new Map(), new Array(12).fill(0), [])],
+		[
+			2020,
+			getExpectedTaxReport(new Map(), [0, 0, 0, 0, 0, 0, 9.28, 0, 0, 0, 0, 0], [new Darf(2020, MONTHS[6].label, 1.39)]),
+		],
+		[2021, getExpectedTaxReport(new Map(), new Array(12).fill(0), [])],
+		[2022, getExpectedTaxReport(new Map(), new Array(12).fill(0), [])],
+		[2023, getExpectedTaxReport(new Map(), new Array(12).fill(0), [])],
+		[2024, getExpectedTaxReport(new Map(), new Array(12).fill(0), [])],
+	])("getTaxReport(%p)", (year, expectedTaxReport) => {
+		expect(subscriptionTaxCalculator["getTaxReport"](year)).toStrictEqual(expectedTaxReport);
 	});
 });
