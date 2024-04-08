@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
+import { FLOATING_POINT_PRECISION } from "../../testUtils";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
-import { FLOATING_POINT_PRECISION } from "../../utils";
 import StockTaxCalculator from "./StockTaxCalculator";
 
 describe("StockTaxCalculator", () => {
@@ -11,6 +12,10 @@ describe("StockTaxCalculator", () => {
 		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
 		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
 		stockTaxCalculator = new StockTaxCalculator(transactions);
+	});
+
+	beforeEach(() => {
+		jest.clearAllMocks();
 	});
 
 	it("should filter stock transactions", () => {
@@ -56,8 +61,8 @@ describe("StockTaxCalculator", () => {
 		[2022, new Array(12).fill(0)],
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
-	])("getMonthlyProfit(%p)", (year, expectedProfits) => {
-		expect(stockTaxCalculator["getMonthlyProfit"](year)).toStrictEqual(expectedProfits);
+	])("getMonthlyProfitLoss(%p)", (year, expectedProfits) => {
+		expect(stockTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
 	});
 
 	test.each([
@@ -278,56 +283,124 @@ describe("StockTaxCalculator", () => {
 	});
 
 	test.each([
-		[
-			2019,
-			new Map([
-				["BRKM5", expect.closeTo(-103.5, FLOATING_POINT_PRECISION)],
-				["CGRA4", expect.closeTo(262.48, FLOATING_POINT_PRECISION)],
-				["ECOR3", expect.closeTo(722.62, FLOATING_POINT_PRECISION)],
-				["GEPA4", expect.closeTo(236, FLOATING_POINT_PRECISION)],
-				["IRBR3", expect.closeTo(-0.2, FLOATING_POINT_PRECISION)],
-				["ITSA4", expect.closeTo(655.53, FLOATING_POINT_PRECISION)],
-				["KLBN11", expect.closeTo(290.48, FLOATING_POINT_PRECISION)],
-				["MRVE3", expect.closeTo(105.33, FLOATING_POINT_PRECISION)],
-				["RLOG3", expect.closeTo(290, FLOATING_POINT_PRECISION)],
-				["SULA11", expect.closeTo(131.16, FLOATING_POINT_PRECISION)],
-				["SUZB3", expect.closeTo(1210.37, FLOATING_POINT_PRECISION)],
-				["TIET11", expect.closeTo(477.61, FLOATING_POINT_PRECISION)],
-				["UNIP6", expect.closeTo(18.37, FLOATING_POINT_PRECISION)],
-			]),
-		],
-		[
-			2020,
-			new Map([
-				["B3SA3", expect.closeTo(546.98, FLOATING_POINT_PRECISION)],
-				["BIDI3", expect.closeTo(11.09, FLOATING_POINT_PRECISION)],
-				["HYPE3", expect.closeTo(74.84, FLOATING_POINT_PRECISION)],
-				["ITUB3", expect.closeTo(185.01, FLOATING_POINT_PRECISION)],
-				["MDIA3", expect.closeTo(83.03, FLOATING_POINT_PRECISION)],
-				["PSSA3", expect.closeTo(39.41, FLOATING_POINT_PRECISION)],
-				["RADL3", expect.closeTo(129.17, FLOATING_POINT_PRECISION)],
-				["RENT3", expect.closeTo(111.18, FLOATING_POINT_PRECISION)],
-				["WEGE3", expect.closeTo(1049.84, FLOATING_POINT_PRECISION)],
-			]),
-		],
-		[
-			2021,
-			new Map([
-				["ABEV3", expect.closeTo(-148.86, FLOATING_POINT_PRECISION)],
-				["CIEL3", expect.closeTo(-87.3, FLOATING_POINT_PRECISION)],
-				["EGIE3", expect.closeTo(-90.31, FLOATING_POINT_PRECISION)],
-				["FLRY3", expect.closeTo(-83.07, FLOATING_POINT_PRECISION)],
-				["GRND3", expect.closeTo(-339.27, FLOATING_POINT_PRECISION)],
-				["IRBR3", expect.closeTo(-758.61, FLOATING_POINT_PRECISION)],
-				["LREN3", expect.closeTo(-202.86, FLOATING_POINT_PRECISION)],
-				["MULT3", expect.closeTo(-292.96, FLOATING_POINT_PRECISION)],
-				["ODPV3", expect.closeTo(-94.55, FLOATING_POINT_PRECISION)],
-			]),
-		],
-		[2022, new Map()],
-		[2023, new Map()],
-		[2024, new Map()],
-	])("getProfitByStock(%p)", (year, expectedProfitByStock) => {
-		expect(stockTaxCalculator["getProfitByStock"](year)).toStrictEqual(expectedProfitByStock);
+		[2019, 0, 0],
+		[2019, 1, 0],
+		[2019, 2, 0],
+		[2019, 3, 0],
+		[2019, 0, 0],
+		[2019, 5, 123.7],
+		[2019, 6, 477.61],
+		[2019, 7, 0],
+		[2019, 8, 0],
+		[2019, 9, 0],
+		[2019, 10, 2879],
+		[2019, 11, 919.64],
+		[2020, 0, 11.09],
+		[2020, 1, 0],
+		[2020, 2, 0],
+		[2020, 3, 0],
+		[2020, 4, 0],
+		[2020, 5, 0],
+		[2020, 6, 2180.05],
+		[2020, 7, 39.41],
+		[2020, 8, 0],
+		[2020, 9, 0],
+		[2020, 10, 0],
+		[2020, 11, 0],
+		[2021, 0, 0],
+		[2021, 1, 0],
+		[2021, 2, 0],
+		[2021, 3, 0],
+		[2021, 4, 0],
+		[2021, 5, 0],
+		[2021, 6, 0],
+		[2021, 7, 0],
+		[2021, 8, 0],
+		[2021, 9, 0],
+		[2021, 10, 0],
+		[2021, 11, 0],
+		[2022, 0, 0],
+		[2022, 1, 0],
+		[2022, 2, 0],
+		[2022, 3, 0],
+		[2022, 4, 0],
+		[2022, 5, 0],
+		[2022, 6, 0],
+		[2022, 7, 0],
+		[2022, 8, 0],
+		[2022, 9, 0],
+		[2022, 10, 0],
+		[2022, 11, 0],
+		[2023, 0, 0],
+		[2023, 1, 0],
+		[2023, 2, 0],
+		[2023, 3, 0],
+		[2023, 4, 0],
+		[2023, 5, 0],
+		[2023, 6, 0],
+		[2023, 7, 0],
+		[2023, 8, 0],
+		[2023, 9, 0],
+		[2023, 10, 0],
+		[2023, 11, 0],
+		[2024, 0, 0],
+		[2024, 1, 0],
+		[2024, 2, 0],
+		[2024, 3, 0],
+		[2024, 4, 0],
+		[2024, 5, 0],
+		[2024, 6, 0],
+		[2024, 7, 0],
+		[2024, 8, 0],
+		[2024, 9, 0],
+		[2024, 10, 0],
+		[2024, 11, 0],
+	])("getProfitByMonth(%p, %p)", (year, month, expectedProfit) => {
+		expect(stockTaxCalculator["getProfitByMonth"](year, month)).toBeCloseTo(expectedProfit, FLOATING_POINT_PRECISION);
+	});
+
+	test.each([
+		[2019, 4399.95],
+		[2020, 2230.55],
+		[2021, 0],
+		[2022, 0],
+		[2023, 0],
+		[2024, 0],
+	])("getAnnualExemptProfit(%p, %p)", (year, expectedAnnualExemptProfit) => {
+		const monthlySalesVolume = stockTaxCalculator["getMonthlySalesVolume"](year);
+		expect(stockTaxCalculator["getAnnualExemptProfit"](year, monthlySalesVolume)).toBeCloseTo(
+			expectedAnnualExemptProfit,
+			FLOATING_POINT_PRECISION,
+		);
+	});
+
+	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getDarfs(%p)", (year) => {
+		const monthlyProfitloss = stockTaxCalculator["getMonthlyProfitLoss"](year);
+		expect(stockTaxCalculator["getDarfs"](year, monthlyProfitloss)).toStrictEqual([]);
+	});
+
+	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getTaxReport(%p)", (year) => {
+		const getSituationReportSpy = jest.spyOn(stockTaxCalculator as any, "getSituationReport");
+		const getMonthlyProfitLossSpy = jest.spyOn(stockTaxCalculator as any, "getMonthlyProfitLoss");
+		const getDarfsSpy = jest.spyOn(stockTaxCalculator as any, "getDarfs");
+		const getMonthlySalesVolumeSpy = jest.spyOn(stockTaxCalculator as any, "getMonthlySalesVolume");
+		const getAnnualExemptProfitSpy = jest.spyOn(stockTaxCalculator as any, "getAnnualExemptProfit");
+
+		stockTaxCalculator.getTaxReport(year);
+
+		expect(getMonthlySalesVolumeSpy).toHaveBeenNthCalledWith(1, year);
+		expect(getMonthlySalesVolumeSpy).toHaveBeenCalledTimes(2);
+		expect(getSituationReportSpy).toHaveBeenCalledWith(year);
+		expect(getSituationReportSpy).toHaveBeenCalledTimes(1);
+		expect(getMonthlyProfitLossSpy).toHaveBeenCalledWith(year);
+		expect(getMonthlyProfitLossSpy).toHaveBeenCalledTimes(1);
+		expect(getDarfsSpy).toHaveBeenCalledWith(
+			year,
+			stockTaxCalculator["getMonthlyProfitLoss"](year),
+			StockTaxCalculator["DARF_RATE"],
+		);
+		expect(getDarfsSpy).toHaveBeenCalledTimes(1);
+		expect(getAnnualExemptProfitSpy).toHaveBeenCalledWith(year, stockTaxCalculator["getMonthlySalesVolume"](year));
+		expect(getAnnualExemptProfitSpy).toHaveBeenCalledTimes(1);
 	});
 });
