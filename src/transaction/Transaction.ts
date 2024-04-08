@@ -1,5 +1,5 @@
 export default class Transaction {
-	profit: number | null = null;
+	profitLoss: number | null = null;
 
 	constructor(
 		readonly date: Date,
@@ -27,10 +27,10 @@ interface Asset {
 	code: string;
 }
 
-// criar o asset type etf de renda fixa e variavel
 export enum AssetType {
 	Fii,
 	Stock,
-	Etf,
+	FixedIncomeEtf,
+	VariableIncomeEtf,
 	Subscription,
 }

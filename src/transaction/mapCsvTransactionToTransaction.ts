@@ -42,8 +42,10 @@ function getAssetType(value: string): AssetType {
 			return AssetType.Stock;
 		case "subscricao":
 			return AssetType.Subscription;
-		case "ETF":
-			return AssetType.Etf;
+		case "etfFixa":
+			return AssetType.FixedIncomeEtf;
+		case "etfVariavel":
+			return AssetType.VariableIncomeEtf;
 		default:
 			throw new Error(`Unkwnown asset type ${value}.`);
 	}
