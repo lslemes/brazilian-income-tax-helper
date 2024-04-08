@@ -1,6 +1,7 @@
 import Darf from "../darf/Darf";
+import { getMonetaryValue, getUpdatedAveragePrice } from "../taxMath/taxMathUtils";
 import Transaction, { TransactionType } from "../transaction/Transaction";
-import { MONTHS } from "../utils";
+import { MONTHS, MonthLabel } from "../utils";
 
 interface Situation {
 	position: number;
@@ -14,7 +15,7 @@ interface SituationReport {
 }
 
 type SituationByAssetCode = Map<string, Situation>;
-type SituationReportByAssetCode = Map<string, SituationReport>;
+export type SituationReportByAssetCode = Map<string, SituationReport>;
 
 type PositionByAssetCode = Map<string, number>;
 type PositionMapByYear = Map<number, PositionByAssetCode>;
@@ -28,6 +29,12 @@ export interface YearlyTaxData {
 	averagePriceMapByYear: AveragePriceMapByYear;
 }
 
+interface TaxReport {
+	situationReportByAssetCode: SituationReportByAssetCode;
+	monthlyProfitLoss: { month: MonthLabel; profitLoss: number }[];
+	darfs: Darf[];
+}
+
 export default abstract class TaxCalculator {
 	protected readonly transactions: Transaction[];
 	private readonly positionMapByYear: PositionMapByYear;
@@ -39,19 +46,6 @@ export default abstract class TaxCalculator {
 		this.transactions = transactionsWithProfitLoss;
 		this.averagePriceMapByYear = averagePriceMapByYear;
 		this.positionMapByYear = positionMapByYear;
-	}
-
-	private static getUpdatedAveragePrice(
-		currentPosition: number,
-		currentAveragePrice: number,
-		positionIncrement: number,
-		valueIncrement: number,
-	): number {
-		if (currentPosition < 0) throw new Error(`Current position ${currentPosition} must not be negative.`);
-		if (currentAveragePrice < 0) throw new Error(`Current average price ${currentAveragePrice} must not be negative.`);
-		if (positionIncrement <= 0) throw new Error(`Position increment ${positionIncrement} must be positive.`);
-		if (valueIncrement < 0) throw new Error(`Value increment ${valueIncrement} must not be negative.`);
-		return (currentPosition * currentAveragePrice + valueIncrement) / (currentPosition + positionIncrement);
 	}
 
 	private static getYearlyTaxData(transactions: Transaction[]): YearlyTaxData {
@@ -80,10 +74,7 @@ export default abstract class TaxCalculator {
 				switch (type) {
 					case TransactionType.Buy:
 						positionByAssetCode.set(assetCode, position + quantity);
-						averagePriceByAssetCode.set(
-							assetCode,
-							TaxCalculator.getUpdatedAveragePrice(position, averagePrice, quantity, value),
-						);
+						averagePriceByAssetCode.set(assetCode, getUpdatedAveragePrice(position, averagePrice, quantity, value));
 						break;
 					case TransactionType.Sell:
 						transaction.profitLoss = value - quantity * averagePrice;
@@ -104,10 +95,6 @@ export default abstract class TaxCalculator {
 		}
 
 		return { transactionsWithProfitLoss, positionMapByYear, averagePriceMapByYear };
-	}
-
-	protected static getMonetaryValue(value: number): number {
-		return Number(value.toFixed(2));
 	}
 
 	protected getMonthlyProfitLoss(year: number): number[] {
@@ -141,15 +128,15 @@ export default abstract class TaxCalculator {
 			const lastValue = lastSituation.get(ticker)?.value ?? 0;
 			situationReport.set(ticker, {
 				position: situation.position,
-				lastValue: TaxCalculator.getMonetaryValue(lastValue),
-				currentValue: TaxCalculator.getMonetaryValue(situation.value),
+				lastValue: getMonetaryValue(lastValue),
+				currentValue: getMonetaryValue(situation.value),
 			});
 		}
 		for (const [ticker, situation] of lastSituation) {
 			if (situationReport.has(ticker)) continue;
 			situationReport.set(ticker, {
 				position: 0,
-				lastValue: TaxCalculator.getMonetaryValue(situation.value),
+				lastValue: getMonetaryValue(situation.value),
 				currentValue: 0,
 			});
 		}
@@ -158,21 +145,21 @@ export default abstract class TaxCalculator {
 		return sortedSituationReport;
 	}
 
-	// tipar retorno?
-	protected getTaxReport(year: number, darfRate: number) {
-		const situationReport = this.getSituationReport(year);
-		const monthlyProfit = this.getMonthlyProfitLoss(year).map((profit, i) => ({
-			month: MONTHS[i].label,
-			profit,
-		}));
-		const darfs = monthlyProfit
-			.filter(({ profit }) => profit > 0)
-			.map(({ month, profit }) => new Darf(year, month, TaxCalculator.getMonetaryValue(profit * darfRate)));
+	protected getDarfs(year: number, monthlyProfitLoss: number[], darfRate: number): Darf[] {
+		return MONTHS.filter((month) => monthlyProfitLoss[month.value] > 0).map(
+			(month) => new Darf(year, month.label, getMonetaryValue(monthlyProfitLoss[month.value] * darfRate)),
+		);
+	}
+
+	protected getTaxReport(year: number, darfRate: number): TaxReport {
+		const situationReportByAssetCode = this.getSituationReport(year);
+		const monthlyProfitLoss = this.getMonthlyProfitLoss(year);
+		const darfs = this.getDarfs(year, monthlyProfitLoss, darfRate);
 		return {
-			situationReport,
-			monthlyProfit: monthlyProfit.map(({ month, profit }) => ({
-				month,
-				profit: TaxCalculator.getMonetaryValue(profit),
+			situationReportByAssetCode,
+			monthlyProfitLoss: monthlyProfitLoss.map((profitLoss, i) => ({
+				month: MONTHS[i].label,
+				profitLoss: getMonetaryValue(profitLoss),
 			})),
 			darfs,
 		};
