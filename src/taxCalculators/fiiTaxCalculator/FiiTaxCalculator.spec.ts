@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
+import { FLOATING_POINT_PRECISION } from "../../testUtils";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
-import { FLOATING_POINT_PRECISION } from "../../utils";
 import FiiTaxCalculator from "./FiiTaxCalculator";
 
 describe("FiiTaxCalculator", () => {
@@ -13,6 +14,10 @@ describe("FiiTaxCalculator", () => {
 		fiiTaxCalculator = new FiiTaxCalculator(transactions);
 	});
 
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it("should filter FII transactions", () => {
 		for (const transaction of fiiTaxCalculator["transactions"]) expect(transaction.asset.type === AssetType.Fii);
 	});
@@ -20,12 +25,12 @@ describe("FiiTaxCalculator", () => {
 	test.each([
 		[2019, [0, 0, 0, 0, 0, expect.closeTo(-96.54, FLOATING_POINT_PRECISION), 0, 0, 0, 0, 0, 0]],
 		[2020, new Array(12).fill(0)],
-		[2021, [expect.closeTo(-2121.71), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+		[2021, [expect.closeTo(-2121.71, FLOATING_POINT_PRECISION), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
 		[2022, new Array(12).fill(0)],
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
-	])("getMonthlyProfit(%p)", (year, expectedProfits) => {
-		expect(fiiTaxCalculator["getMonthlyProfit"](year)).toStrictEqual(expectedProfits);
+	])("getMonthlyProfitLoss(%p)", (year, expectedProfits) => {
+		expect(fiiTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
 	});
 
 	test.each([
@@ -191,5 +196,29 @@ describe("FiiTaxCalculator", () => {
 		[2024, new Map()],
 	])("getSituationReport(%p)", (year, expectedReport) => {
 		expect(fiiTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
+	});
+
+	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getDarfs(%p)", (year) => {
+		const monthlyProfitLoss = fiiTaxCalculator["getMonthlyProfitLoss"](year);
+		expect(fiiTaxCalculator["getDarfs"](year, monthlyProfitLoss, FiiTaxCalculator["DARF_RATE"])).toStrictEqual([]);
+	});
+
+	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getTaxReport(%p)", (year) => {
+		const getSituationReportSpy = jest.spyOn(fiiTaxCalculator as any, "getSituationReport");
+		const getMonthlyProfitLossSpy = jest.spyOn(fiiTaxCalculator as any, "getMonthlyProfitLoss");
+		const getDarfsSpy = jest.spyOn(fiiTaxCalculator as any, "getDarfs");
+
+		fiiTaxCalculator.getTaxReport(year);
+
+		expect(getSituationReportSpy).toHaveBeenCalledWith(year);
+		expect(getSituationReportSpy).toHaveBeenCalledTimes(1);
+		expect(getMonthlyProfitLossSpy).toHaveBeenCalledWith(year);
+		expect(getMonthlyProfitLossSpy).toHaveBeenCalledTimes(1);
+		expect(getDarfsSpy).toHaveBeenCalledWith(
+			year,
+			fiiTaxCalculator["getMonthlyProfitLoss"](year),
+			FiiTaxCalculator["DARF_RATE"],
+		);
+		expect(getDarfsSpy).toHaveBeenCalledTimes(1);
 	});
 });
