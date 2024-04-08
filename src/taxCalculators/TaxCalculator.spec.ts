@@ -3,7 +3,7 @@ import csv from "csvtojson";
 import { TransactionType } from "../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../transaction/mapCsvTransactionToTransaction";
 import { FLOATING_POINT_PRECISION } from "../utils";
-import TaxCalculator from "./TaxCalculator";
+import TaxCalculator, { YearlyTaxData } from "./TaxCalculator";
 
 describe("TaxCalculator", () => {
 	describe("getUpdatedAveragePrice", () => {
@@ -61,7 +61,7 @@ describe("TaxCalculator", () => {
 	});
 
 	describe("getYearlyTaxData", () => {
-		let yearlyTaxData: ReturnType<(typeof TaxCalculator)["getYearlyTaxData"]>;
+		let yearlyTaxData: YearlyTaxData;
 
 		beforeAll(async () => {
 			const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
@@ -69,21 +69,21 @@ describe("TaxCalculator", () => {
 			yearlyTaxData = TaxCalculator["getYearlyTaxData"](transactions);
 		});
 
-		it("should return buy transactions with no profits", async () => {
-			const transactions = yearlyTaxData.processedTransactions;
+		it("should return buy transactions with no profit/loss", async () => {
+			const transactions = yearlyTaxData.transactionsWithProfitLoss;
 			const buyTransactions = transactions.filter((transaction) => transaction.type === TransactionType.Buy);
-			for (const transaction of buyTransactions) expect(transaction.profit).toBeNull();
+			for (const transaction of buyTransactions) expect(transaction.profitLoss).toBeNull();
 		});
 
-		it("should return sell transactions with profits", async () => {
-			const transactions = yearlyTaxData.processedTransactions;
+		it("should return sell transactions with profit/loss", async () => {
+			const transactions = yearlyTaxData.transactionsWithProfitLoss;
 			const sellTransactions = transactions.filter((transaction) => transaction.type === TransactionType.Sell);
-			for (const transaction of sellTransactions) expect(transaction.profit).toEqual(expect.any(Number));
+			for (const transaction of sellTransactions) expect(transaction.profitLoss).toEqual(expect.any(Number));
 		});
 
-		it("should return a yearly position map", () => {
-			const { positionMapByYear } = yearlyTaxData;
-			expect(positionMapByYear.get(2019)).toStrictEqual(
+		it.each([
+			[
+				2019,
 				new Map([
 					["ABEV3", 37],
 					["ALZR11", 7],
@@ -113,8 +113,9 @@ describe("TaxCalculator", () => {
 					["XPLG11", 7],
 					["XPML11", 7],
 				]),
-			);
-			expect(positionMapByYear.get(2020)).toStrictEqual(
+			],
+			[
+				2020,
 				new Map([
 					["ABEV3", 55],
 					["ALZR11", 11],
@@ -137,30 +138,34 @@ describe("TaxCalculator", () => {
 					["XPLG11", 22],
 					["XPML11", 29],
 				]),
-			);
-			expect(positionMapByYear.get(2021)).toStrictEqual(new Map());
-			expect(positionMapByYear.get(2022)).toStrictEqual(new Map());
-			expect(positionMapByYear.get(2023)).toStrictEqual(
+			],
+			[2021, new Map()],
+			[2022, new Map()],
+			[
+				2023,
 				new Map([
 					["BOVA11", 10],
 					["IMAB11", 66],
 					["IRFM11", 27],
 					["XFIX11", 34],
 				]),
-			);
-			expect(positionMapByYear.get(2024)).toStrictEqual(
+			],
+			[
+				2024,
 				new Map([
 					["B5P211", 146],
 					["BOVA11", 10],
 					["IRFM11", 27],
 					["IVVB11", 47],
 				]),
-			);
+			],
+		])("should return %p position map", (year, expectedPositionMap) => {
+			expect(yearlyTaxData.positionMapByYear.get(year)).toStrictEqual(expectedPositionMap);
 		});
 
-		it("should return a yearly average price map", () => {
-			const { averagePriceMapByYear } = yearlyTaxData;
-			expect(averagePriceMapByYear.get(2019)).toStrictEqual(
+		it.each([
+			[
+				2019,
 				new Map([
 					["ABEV3", expect.closeTo(677.47 / 37, FLOATING_POINT_PRECISION)],
 					["ALZR11", expect.closeTo(850.08 / 7, FLOATING_POINT_PRECISION)],
@@ -190,8 +195,9 @@ describe("TaxCalculator", () => {
 					["XPLG11", expect.closeTo(923.09 / 7, FLOATING_POINT_PRECISION)],
 					["XPML11", expect.closeTo(890.72 / 7, FLOATING_POINT_PRECISION)],
 				]),
-			);
-			expect(averagePriceMapByYear.get(2020)).toStrictEqual(
+			],
+			[
+				2020,
 				new Map([
 					["ABEV3", expect.closeTo(1001.91 / 55, FLOATING_POINT_PRECISION)],
 					["ALZR11", expect.closeTo(1435.52 / 11, FLOATING_POINT_PRECISION)],
@@ -214,25 +220,29 @@ describe("TaxCalculator", () => {
 					["XPLG11", expect.closeTo(2941.24 / 22, FLOATING_POINT_PRECISION)],
 					["XPML11", expect.closeTo(3340.34 / 29, FLOATING_POINT_PRECISION)],
 				]),
-			);
-			expect(averagePriceMapByYear.get(2021)).toStrictEqual(new Map());
-			expect(averagePriceMapByYear.get(2022)).toStrictEqual(new Map());
-			expect(averagePriceMapByYear.get(2023)).toStrictEqual(
+			],
+			[2021, new Map()],
+			[2022, new Map()],
+			[
+				2023,
 				new Map([
 					["BOVA11", expect.closeTo(976.7 / 10, FLOATING_POINT_PRECISION)],
 					["IMAB11", expect.closeTo(5936.69 / 66, FLOATING_POINT_PRECISION)],
 					["IRFM11", expect.closeTo(1969.11 / 27, FLOATING_POINT_PRECISION)],
 					["XFIX11", expect.closeTo(336.6 / 34, FLOATING_POINT_PRECISION)],
 				]),
-			);
-			expect(averagePriceMapByYear.get(2024)).toStrictEqual(
+			],
+			[
+				2024,
 				new Map([
 					["B5P211", expect.closeTo((41 * 87.78 + 105 * 88) / (41 + 105), FLOATING_POINT_PRECISION)],
 					["BOVA11", expect.closeTo(97.67, FLOATING_POINT_PRECISION)],
 					["IRFM11", expect.closeTo(72.93, FLOATING_POINT_PRECISION)],
 					["IVVB11", expect.closeTo((12 * 289.4 + 35 * 288.74) / (12 + 35), FLOATING_POINT_PRECISION)],
 				]),
-			);
+			],
+		])("should return %p average price map", (year, expectedAveragePriceMap) => {
+			expect(yearlyTaxData.averagePriceMapByYear.get(year)).toStrictEqual(expectedAveragePriceMap);
 		});
 	});
 
