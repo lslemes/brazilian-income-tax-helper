@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
+import Darf from "../../darf/Darf";
+import { FLOATING_POINT_PRECISION } from "../../testUtils";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
-import { FLOATING_POINT_PRECISION } from "../../utils";
+import { MONTHS } from "../../utils";
 import EtfTaxCalculator from "./EtfTaxCalculator";
 
 describe("EtfTaxCalculator", () => {
@@ -13,8 +16,15 @@ describe("EtfTaxCalculator", () => {
 		etfTaxCalculator = new EtfTaxCalculator(transactions);
 	});
 
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it("should filter ETF transactions", () => {
-		for (const transaction of etfTaxCalculator["transactions"]) expect(transaction.asset.type === AssetType.Etf);
+		for (const transaction of etfTaxCalculator["transactions"])
+			expect(
+				transaction.asset.type === AssetType.FixedIncomeEtf || transaction.asset.type === AssetType.VariableIncomeEtf,
+			);
 	});
 
 	test.each([
@@ -24,8 +34,8 @@ describe("EtfTaxCalculator", () => {
 		[2022, new Array(12).fill(0)],
 		[2023, new Array(12).fill(0)],
 		[2024, [0, 0, expect.closeTo(621.89, FLOATING_POINT_PRECISION), 0, 0, 0, 0, 0, 0, 0, 0, 0]],
-	])("getMonthlyProfit(%p)", (year, expectedProfits) => {
-		expect(etfTaxCalculator["getMonthlyProfit"](year)).toStrictEqual(expectedProfits);
+	])("getMonthlyProfitLoss(%p)", (year, expectedProfits) => {
+		expect(etfTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
 	});
 
 	test.each([
@@ -96,5 +106,35 @@ describe("EtfTaxCalculator", () => {
 		],
 	])("getSituationReport(%p)", (year, expectedReport) => {
 		expect(etfTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
+	});
+
+	test.each([
+		[2019, []],
+		[2020, []],
+		[2021, []],
+		[2022, []],
+		[2023, []],
+		[2024, [new Darf(2024, MONTHS[2].label, 10.91)]],
+	])("getDarfs(%p)", (year, expectedDarfs) => {
+		expect(etfTaxCalculator["getDarfs"](year)).toStrictEqual(expectedDarfs);
+	});
+
+	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getTaxReport(%p)", (year) => {
+		const getSituationReportSpy = jest.spyOn(etfTaxCalculator as any, "getSituationReport");
+		const getMonthlyProfitLossSpy = jest.spyOn(etfTaxCalculator as any, "getMonthlyProfitLoss");
+		const getDarfsSpy = jest.spyOn(etfTaxCalculator as any, "getDarfs");
+
+		etfTaxCalculator.getTaxReport(year);
+
+		expect(getSituationReportSpy).toHaveBeenCalledWith(year);
+		expect(getSituationReportSpy).toHaveBeenCalledTimes(1);
+		expect(getMonthlyProfitLossSpy).toHaveBeenCalledWith(year);
+		expect(getMonthlyProfitLossSpy).toHaveBeenCalledTimes(1);
+		expect(getDarfsSpy).toHaveBeenCalledWith(
+			year,
+			etfTaxCalculator["getMonthlyProfitLoss"](year),
+			EtfTaxCalculator["DARF_RATE"],
+		);
+		expect(getDarfsSpy).toHaveBeenCalledTimes(1);
 	});
 });

@@ -1,4 +1,6 @@
-import Transaction, { AssetType, TransactionType } from "../../transaction/Transaction";
+import Darf from "../../darf/Darf";
+import { getMonetaryValue } from "../../taxMath/taxMathUtils";
+import Transaction, { AssetType } from "../../transaction/Transaction";
 import { MONTHS } from "../../utils";
 import TaxCalculator from "../TaxCalculator";
 
@@ -6,22 +8,34 @@ export default class EtfTaxCalculator extends TaxCalculator {
 	private static readonly DARF_RATE = 0.15;
 
 	constructor(transactions: Transaction[]) {
-		super(transactions.filter((transaction) => transaction.asset.type === AssetType.Etf));
+		super(
+			transactions.filter(
+				(transaction) =>
+					transaction.asset.type === AssetType.FixedIncomeEtf || transaction.asset.type === AssetType.VariableIncomeEtf,
+			),
+		);
 	}
 
-	// include new asset types for fixed income etf
-	protected getMonthlyProfit(year: number) {
-		const transactions = this.transactions.filter(
-			(transaction) =>
-				transaction.date.getFullYear() === year && !["IRFM11", "IMAB11", "B5P211"].includes(transaction.asset.code),
-		);
-		return MONTHS.map((month) =>
-			transactions
+	protected getDarfs(year: number): Darf[] {
+		const monthlyVariableIncomeEtfProfitLoss = MONTHS.map((month) =>
+			this.transactions
 				.filter(
-					(transaction) => transaction.type === TransactionType.Sell && transaction.date.getMonth() === month.value,
+					(transaction) =>
+						transaction.date.getFullYear() === year &&
+						transaction.date.getMonth() === month.value &&
+						transaction.asset.type === AssetType.VariableIncomeEtf,
 				)
-				.reduce((totalProfit, transaction) => totalProfit + (transaction.profit ?? 0), 0),
+				.reduce((totalProfitLoss, transcation) => totalProfitLoss + (transcation.profitLoss ?? 0), 0),
 		);
+		const darfs = MONTHS.filter((month) => monthlyVariableIncomeEtfProfitLoss[month.value] > 0).map(
+			(month) =>
+				new Darf(
+					year,
+					month.label,
+					getMonetaryValue(monthlyVariableIncomeEtfProfitLoss[month.value] * EtfTaxCalculator.DARF_RATE),
+				),
+		);
+		return darfs;
 	}
 
 	public getTaxReport(year: number) {
