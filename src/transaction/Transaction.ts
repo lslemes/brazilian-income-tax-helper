@@ -27,6 +27,7 @@ interface Asset {
 	code: string;
 }
 
+// criar o asset type etf de renda fixa e variavel
 export enum AssetType {
 	Fii,
 	Stock,
