@@ -3,7 +3,7 @@ import { MONTHS } from "../../utils";
 import TaxCalculator from "../TaxCalculator";
 
 export default class EtfTaxCalculator extends TaxCalculator {
-	private static readonly darfRate = 0.15;
+	private static readonly DARF_RATE = 0.15;
 
 	constructor(transactions: Transaction[]) {
 		super(transactions.filter((transaction) => transaction.asset.type === AssetType.Etf));
@@ -25,6 +25,6 @@ export default class EtfTaxCalculator extends TaxCalculator {
 	}
 
 	public getTaxReport(year: number) {
-		return super.getTaxReport(year, EtfTaxCalculator.darfRate);
+		return super.getTaxReport(year, EtfTaxCalculator.DARF_RATE);
 	}
 }
