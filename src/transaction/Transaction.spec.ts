@@ -15,10 +15,10 @@ describe("Transaction", () => {
 
 	it("should throw an error when transaction quantity is not positive", () => {
 		expect(() => new Transaction(anything, anything, anything, 0, anything)).toThrow(
-			"Transaction must have a postive quantity 0.",
+			"Transaction must have a positive quantity 0.",
 		);
 		expect(() => new Transaction(anything, anything, anything, -1, anything)).toThrow(
-			"Transaction must have a postive quantity -1.",
+			"Transaction must have a positive quantity -1.",
 		);
 	});
 

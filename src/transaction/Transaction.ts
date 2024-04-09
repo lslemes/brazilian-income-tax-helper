@@ -8,7 +8,7 @@ export default class Transaction {
 		readonly quantity: number,
 		readonly price: number,
 	) {
-		if (quantity <= 0) throw new Error(`Transaction must have a postive quantity ${quantity}.`);
+		if (quantity <= 0) throw new Error(`Transaction must have a positive quantity ${quantity}.`);
 		if (price < 0) throw new Error(`Transaction must not have negative price ${price}.`);
 	}
 
