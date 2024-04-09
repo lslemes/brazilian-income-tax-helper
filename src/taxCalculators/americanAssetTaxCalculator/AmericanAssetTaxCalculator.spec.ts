@@ -1,0 +1,3 @@
+describe("AmericanAssetTaxCalculator", () => {
+	test.todo("");
+});
