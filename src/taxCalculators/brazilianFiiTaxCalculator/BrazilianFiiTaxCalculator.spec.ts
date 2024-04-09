@@ -3,15 +3,15 @@ import csv from "csvtojson";
 import { FLOATING_POINT_PRECISION } from "../../testUtils";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
-import FiiTaxCalculator from "./FiiTaxCalculator";
+import BrazilianFiiTaxCalculator from "./BrazilianFiiTaxCalculator";
 
-describe("FiiTaxCalculator", () => {
-	let fiiTaxCalculator: FiiTaxCalculator;
+describe("BrazilianFiiTaxCalculator", () => {
+	let taxCalculator: BrazilianFiiTaxCalculator;
 
 	beforeAll(async () => {
-		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
+		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
 		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
-		fiiTaxCalculator = new FiiTaxCalculator(transactions);
+		taxCalculator = new BrazilianFiiTaxCalculator(transactions);
 	});
 
 	beforeEach(() => {
@@ -19,7 +19,7 @@ describe("FiiTaxCalculator", () => {
 	});
 
 	it("should filter FII transactions", () => {
-		for (const transaction of fiiTaxCalculator["transactions"]) expect(transaction.asset.type === AssetType.Fii);
+		for (const transaction of taxCalculator["transactions"]) expect(transaction.asset.type === AssetType.BrazilianFii);
 	});
 
 	test.each([
@@ -30,7 +30,7 @@ describe("FiiTaxCalculator", () => {
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
 	])("getMonthlyProfitLoss(%p)", (year, expectedProfits) => {
-		expect(fiiTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
+		expect(taxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
 	});
 
 	test.each([
@@ -70,7 +70,7 @@ describe("FiiTaxCalculator", () => {
 		[2023, new Map()],
 		[2024, new Map()],
 	])("getSituation(%p)", (year, expectedSituation) => {
-		expect(fiiTaxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
+		expect(taxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
 	});
 
 	test.each([
@@ -195,20 +195,22 @@ describe("FiiTaxCalculator", () => {
 		[2023, new Map()],
 		[2024, new Map()],
 	])("getSituationReport(%p)", (year, expectedReport) => {
-		expect(fiiTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
+		expect(taxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
 	});
 
 	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getDarfs(%p)", (year) => {
-		const monthlyProfitLoss = fiiTaxCalculator["getMonthlyProfitLoss"](year);
-		expect(fiiTaxCalculator["getDarfs"](year, monthlyProfitLoss, FiiTaxCalculator["DARF_RATE"])).toStrictEqual([]);
+		const monthlyProfitLoss = taxCalculator["getMonthlyProfitLoss"](year);
+		expect(taxCalculator["getDarfs"](year, monthlyProfitLoss, BrazilianFiiTaxCalculator["DARF_RATE"])).toStrictEqual(
+			[],
+		);
 	});
 
 	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getTaxReport(%p)", (year) => {
-		const getSituationReportSpy = jest.spyOn(fiiTaxCalculator as any, "getSituationReport");
-		const getMonthlyProfitLossSpy = jest.spyOn(fiiTaxCalculator as any, "getMonthlyProfitLoss");
-		const getDarfsSpy = jest.spyOn(fiiTaxCalculator as any, "getDarfs");
+		const getSituationReportSpy = jest.spyOn(taxCalculator as any, "getSituationReport");
+		const getMonthlyProfitLossSpy = jest.spyOn(taxCalculator as any, "getMonthlyProfitLoss");
+		const getDarfsSpy = jest.spyOn(taxCalculator as any, "getDarfs");
 
-		fiiTaxCalculator.getTaxReport(year);
+		taxCalculator.getTaxReport(year);
 
 		expect(getSituationReportSpy).toHaveBeenCalledWith(year);
 		expect(getSituationReportSpy).toHaveBeenCalledTimes(1);
@@ -216,8 +218,8 @@ describe("FiiTaxCalculator", () => {
 		expect(getMonthlyProfitLossSpy).toHaveBeenCalledTimes(1);
 		expect(getDarfsSpy).toHaveBeenCalledWith(
 			year,
-			fiiTaxCalculator["getMonthlyProfitLoss"](year),
-			FiiTaxCalculator["DARF_RATE"],
+			taxCalculator["getMonthlyProfitLoss"](year),
+			BrazilianFiiTaxCalculator["DARF_RATE"],
 		);
 		expect(getDarfsSpy).toHaveBeenCalledTimes(1);
 	});

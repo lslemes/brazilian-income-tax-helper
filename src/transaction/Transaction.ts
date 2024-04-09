@@ -28,9 +28,11 @@ interface Asset {
 }
 
 export enum AssetType {
-	Fii,
-	Stock,
-	FixedIncomeEtf,
-	VariableIncomeEtf,
-	Subscription,
+	BrazilianFii,
+	BrazilianStock,
+	BrazilianFixedIncomeEtf,
+	BrazilianVariableIncomeEtf,
+	BrazilianSubscription,
+	AmericanAsset,
+	Cryptocurrency,
 }

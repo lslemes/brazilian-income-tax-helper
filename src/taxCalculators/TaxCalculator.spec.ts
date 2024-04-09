@@ -10,7 +10,7 @@ describe("TaxCalculator", () => {
 		let yearlyTaxData: YearlyTaxData;
 
 		beforeAll(async () => {
-			const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
+			const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
 			const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
 			yearlyTaxData = TaxCalculator["getYearlyTaxData"](transactions);
 		});

@@ -4,15 +4,15 @@ import Darf from "../../darf/Darf";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
 import { MONTHS } from "../../utils";
-import SubscriptionTaxCalculator from "./SubscriptionTaxCalculator";
+import BrazilianSubscriptionTaxCalculator from "./BrazilianSubscriptionTaxCalculator";
 
-describe("SubscriptionTaxCalculator", () => {
-	let subscriptionTaxCalculator: SubscriptionTaxCalculator;
+describe("BrazilianSubscriptionTaxCalculator", () => {
+	let taxCalculator: BrazilianSubscriptionTaxCalculator;
 
 	beforeAll(async () => {
-		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
+		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
 		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
-		subscriptionTaxCalculator = new SubscriptionTaxCalculator(transactions);
+		taxCalculator = new BrazilianSubscriptionTaxCalculator(transactions);
 	});
 
 	beforeEach(() => {
@@ -20,8 +20,8 @@ describe("SubscriptionTaxCalculator", () => {
 	});
 
 	it("should filter subscription transactions", () => {
-		for (const transaction of subscriptionTaxCalculator["transactions"])
-			expect(transaction.asset.type === AssetType.Subscription);
+		for (const transaction of taxCalculator["transactions"])
+			expect(transaction.asset.type === AssetType.BrazilianSubscription);
 	});
 
 	test.each([
@@ -32,7 +32,7 @@ describe("SubscriptionTaxCalculator", () => {
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
 	])("getMonthlyProfitLoss(%p)", (year, expectedProfitLoss) => {
-		expect(subscriptionTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfitLoss);
+		expect(taxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfitLoss);
 	});
 
 	test.each([
@@ -43,7 +43,7 @@ describe("SubscriptionTaxCalculator", () => {
 		[2023, new Map()],
 		[2024, new Map()],
 	])("getSituation(%p)", (year, expectedSituation) => {
-		expect(subscriptionTaxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
+		expect(taxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
 	});
 
 	test.each([
@@ -54,7 +54,7 @@ describe("SubscriptionTaxCalculator", () => {
 		[2023, new Map()],
 		[2024, new Map()],
 	])("getSituationReport(%p)", (year, expectedSituationReport) => {
-		expect(subscriptionTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedSituationReport);
+		expect(taxCalculator["getSituationReport"](year)).toStrictEqual(expectedSituationReport);
 	});
 
 	test.each([
@@ -65,18 +65,18 @@ describe("SubscriptionTaxCalculator", () => {
 		[2023, []],
 		[2024, []],
 	])("getDarfs(%p)", (year, expectedDarfs) => {
-		const monthlyProfitLoss = subscriptionTaxCalculator["getMonthlyProfitLoss"](year);
+		const monthlyProfitLoss = taxCalculator["getMonthlyProfitLoss"](year);
 		expect(
-			subscriptionTaxCalculator["getDarfs"](year, monthlyProfitLoss, SubscriptionTaxCalculator["DARF_RATE"]),
+			taxCalculator["getDarfs"](year, monthlyProfitLoss, BrazilianSubscriptionTaxCalculator["DARF_RATE"]),
 		).toStrictEqual(expectedDarfs);
 	});
 
 	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getTaxReport(%p)", (year) => {
-		const getSituationReportSpy = jest.spyOn(subscriptionTaxCalculator as any, "getSituationReport");
-		const getMonthlyProfitLossSpy = jest.spyOn(subscriptionTaxCalculator as any, "getMonthlyProfitLoss");
-		const getDarfsSpy = jest.spyOn(subscriptionTaxCalculator as any, "getDarfs");
+		const getSituationReportSpy = jest.spyOn(taxCalculator as any, "getSituationReport");
+		const getMonthlyProfitLossSpy = jest.spyOn(taxCalculator as any, "getMonthlyProfitLoss");
+		const getDarfsSpy = jest.spyOn(taxCalculator as any, "getDarfs");
 
-		subscriptionTaxCalculator.getTaxReport(year);
+		taxCalculator.getTaxReport(year);
 
 		expect(getSituationReportSpy).toHaveBeenCalledWith(year);
 		expect(getSituationReportSpy).toHaveBeenCalledTimes(1);
@@ -84,8 +84,8 @@ describe("SubscriptionTaxCalculator", () => {
 		expect(getMonthlyProfitLossSpy).toHaveBeenCalledTimes(1);
 		expect(getDarfsSpy).toHaveBeenCalledWith(
 			year,
-			subscriptionTaxCalculator["getMonthlyProfitLoss"](year),
-			SubscriptionTaxCalculator["DARF_RATE"],
+			taxCalculator["getMonthlyProfitLoss"](year),
+			BrazilianSubscriptionTaxCalculator["DARF_RATE"],
 		);
 		expect(getDarfsSpy).toHaveBeenCalledTimes(1);
 	});

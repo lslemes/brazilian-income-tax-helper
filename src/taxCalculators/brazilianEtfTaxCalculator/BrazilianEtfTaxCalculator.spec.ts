@@ -5,15 +5,15 @@ import { FLOATING_POINT_PRECISION } from "../../testUtils";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
 import { MONTHS } from "../../utils";
-import EtfTaxCalculator from "./EtfTaxCalculator";
+import BrazilianEtfTaxCalculator from "./BrazilianEtfTaxCalculator";
 
-describe("EtfTaxCalculator", () => {
-	let etfTaxCalculator: EtfTaxCalculator;
+describe("BrazilianEtfTaxCalculator", () => {
+	let taxCalculator: BrazilianEtfTaxCalculator;
 
 	beforeAll(async () => {
-		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
+		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
 		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
-		etfTaxCalculator = new EtfTaxCalculator(transactions);
+		taxCalculator = new BrazilianEtfTaxCalculator(transactions);
 	});
 
 	beforeEach(() => {
@@ -21,9 +21,10 @@ describe("EtfTaxCalculator", () => {
 	});
 
 	it("should filter ETF transactions", () => {
-		for (const transaction of etfTaxCalculator["transactions"])
+		for (const transaction of taxCalculator["transactions"])
 			expect(
-				transaction.asset.type === AssetType.FixedIncomeEtf || transaction.asset.type === AssetType.VariableIncomeEtf,
+				transaction.asset.type === AssetType.BrazilianFixedIncomeEtf ||
+					transaction.asset.type === AssetType.BrazilianVariableIncomeEtf,
 			);
 	});
 
@@ -35,7 +36,7 @@ describe("EtfTaxCalculator", () => {
 		[2023, new Array(12).fill(0)],
 		[2024, [0, 0, expect.closeTo(621.89, FLOATING_POINT_PRECISION), 0, 0, 0, 0, 0, 0, 0, 0, 0]],
 	])("getMonthlyProfitLoss(%p)", (year, expectedProfits) => {
-		expect(etfTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
+		expect(taxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
 	});
 
 	test.each([
@@ -62,7 +63,7 @@ describe("EtfTaxCalculator", () => {
 			]),
 		],
 	])("getSituation(%p)", (year, expectedSituation) => {
-		expect(etfTaxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
+		expect(taxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
 	});
 
 	test.each([
@@ -105,7 +106,7 @@ describe("EtfTaxCalculator", () => {
 			]),
 		],
 	])("getSituationReport(%p)", (year, expectedReport) => {
-		expect(etfTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
+		expect(taxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
 	});
 
 	test.each([
@@ -116,15 +117,15 @@ describe("EtfTaxCalculator", () => {
 		[2023, []],
 		[2024, [new Darf(2024, MONTHS[2].label, 10.91)]],
 	])("getDarfs(%p)", (year, expectedDarfs) => {
-		expect(etfTaxCalculator["getDarfs"](year)).toStrictEqual(expectedDarfs);
+		expect(taxCalculator["getDarfs"](year)).toStrictEqual(expectedDarfs);
 	});
 
 	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getTaxReport(%p)", (year) => {
-		const getSituationReportSpy = jest.spyOn(etfTaxCalculator as any, "getSituationReport");
-		const getMonthlyProfitLossSpy = jest.spyOn(etfTaxCalculator as any, "getMonthlyProfitLoss");
-		const getDarfsSpy = jest.spyOn(etfTaxCalculator as any, "getDarfs");
+		const getSituationReportSpy = jest.spyOn(taxCalculator as any, "getSituationReport");
+		const getMonthlyProfitLossSpy = jest.spyOn(taxCalculator as any, "getMonthlyProfitLoss");
+		const getDarfsSpy = jest.spyOn(taxCalculator as any, "getDarfs");
 
-		etfTaxCalculator.getTaxReport(year);
+		taxCalculator.getTaxReport(year);
 
 		expect(getSituationReportSpy).toHaveBeenCalledWith(year);
 		expect(getSituationReportSpy).toHaveBeenCalledTimes(1);
@@ -132,8 +133,8 @@ describe("EtfTaxCalculator", () => {
 		expect(getMonthlyProfitLossSpy).toHaveBeenCalledTimes(1);
 		expect(getDarfsSpy).toHaveBeenCalledWith(
 			year,
-			etfTaxCalculator["getMonthlyProfitLoss"](year),
-			EtfTaxCalculator["DARF_RATE"],
+			taxCalculator["getMonthlyProfitLoss"](year),
+			BrazilianEtfTaxCalculator["DARF_RATE"],
 		);
 		expect(getDarfsSpy).toHaveBeenCalledTimes(1);
 	});

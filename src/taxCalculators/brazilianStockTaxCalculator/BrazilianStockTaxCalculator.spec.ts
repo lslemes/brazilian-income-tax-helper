@@ -3,15 +3,15 @@ import csv from "csvtojson";
 import { FLOATING_POINT_PRECISION } from "../../testUtils";
 import { AssetType } from "../../transaction/Transaction";
 import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
-import StockTaxCalculator from "./StockTaxCalculator";
+import BrazilianStockTaxCalculator from "./BrazilianStockTaxCalculator";
 
-describe("StockTaxCalculator", () => {
-	let stockTaxCalculator: StockTaxCalculator;
+describe("BrazilianStockTaxCalculator", () => {
+	let taxCalculator: BrazilianStockTaxCalculator;
 
 	beforeAll(async () => {
-		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/transactions.csv");
+		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
 		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
-		stockTaxCalculator = new StockTaxCalculator(transactions);
+		taxCalculator = new BrazilianStockTaxCalculator(transactions);
 	});
 
 	beforeEach(() => {
@@ -19,7 +19,8 @@ describe("StockTaxCalculator", () => {
 	});
 
 	it("should filter stock transactions", () => {
-		for (const transaction of stockTaxCalculator["transactions"]) expect(transaction.asset.type === AssetType.Stock);
+		for (const transaction of taxCalculator["transactions"])
+			expect(transaction.asset.type === AssetType.BrazilianStock);
 	});
 
 	test.each([
@@ -62,7 +63,7 @@ describe("StockTaxCalculator", () => {
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
 	])("getMonthlyProfitLoss(%p)", (year, expectedProfits) => {
-		expect(stockTaxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
+		expect(taxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
 	});
 
 	test.each([
@@ -107,7 +108,7 @@ describe("StockTaxCalculator", () => {
 		[2023, new Map()],
 		[2024, new Map()],
 	])("getSituation(%p)", (year, expectedSituation) => {
-		expect(stockTaxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
+		expect(taxCalculator["getSituation"](year)).toStrictEqual(expectedSituation);
 	});
 
 	test.each([
@@ -236,7 +237,7 @@ describe("StockTaxCalculator", () => {
 		[2023, new Map()],
 		[2024, new Map()],
 	])("getSituationReport(%p)", (year, expectedReport) => {
-		expect(stockTaxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
+		expect(taxCalculator["getSituationReport"](year)).toStrictEqual(expectedReport);
 	});
 
 	test.each([
@@ -279,7 +280,7 @@ describe("StockTaxCalculator", () => {
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
 	])("getMonthlySalesVolume(%p)", (year, expectedVolumes) => {
-		expect(stockTaxCalculator["getMonthlySalesVolume"](year)).toStrictEqual(expectedVolumes);
+		expect(taxCalculator["getMonthlySalesVolume"](year)).toStrictEqual(expectedVolumes);
 	});
 
 	test.each([
@@ -356,7 +357,7 @@ describe("StockTaxCalculator", () => {
 		[2024, 10, 0],
 		[2024, 11, 0],
 	])("getProfitByMonth(%p, %p)", (year, month, expectedProfit) => {
-		expect(stockTaxCalculator["getProfitByMonth"](year, month)).toBeCloseTo(expectedProfit, FLOATING_POINT_PRECISION);
+		expect(taxCalculator["getProfitByMonth"](year, month)).toBeCloseTo(expectedProfit, FLOATING_POINT_PRECISION);
 	});
 
 	test.each([
@@ -367,26 +368,26 @@ describe("StockTaxCalculator", () => {
 		[2023, 0],
 		[2024, 0],
 	])("getAnnualExemptProfit(%p, %p)", (year, expectedAnnualExemptProfit) => {
-		const monthlySalesVolume = stockTaxCalculator["getMonthlySalesVolume"](year);
-		expect(stockTaxCalculator["getAnnualExemptProfit"](year, monthlySalesVolume)).toBeCloseTo(
+		const monthlySalesVolume = taxCalculator["getMonthlySalesVolume"](year);
+		expect(taxCalculator["getAnnualExemptProfit"](year, monthlySalesVolume)).toBeCloseTo(
 			expectedAnnualExemptProfit,
 			FLOATING_POINT_PRECISION,
 		);
 	});
 
 	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getDarfs(%p)", (year) => {
-		const monthlyProfitloss = stockTaxCalculator["getMonthlyProfitLoss"](year);
-		expect(stockTaxCalculator["getDarfs"](year, monthlyProfitloss)).toStrictEqual([]);
+		const monthlyProfitloss = taxCalculator["getMonthlyProfitLoss"](year);
+		expect(taxCalculator["getDarfs"](year, monthlyProfitloss)).toStrictEqual([]);
 	});
 
 	test.each([2019, 2020, 2021, 2022, 2023, 2024])("getTaxReport(%p)", (year) => {
-		const getSituationReportSpy = jest.spyOn(stockTaxCalculator as any, "getSituationReport");
-		const getMonthlyProfitLossSpy = jest.spyOn(stockTaxCalculator as any, "getMonthlyProfitLoss");
-		const getDarfsSpy = jest.spyOn(stockTaxCalculator as any, "getDarfs");
-		const getMonthlySalesVolumeSpy = jest.spyOn(stockTaxCalculator as any, "getMonthlySalesVolume");
-		const getAnnualExemptProfitSpy = jest.spyOn(stockTaxCalculator as any, "getAnnualExemptProfit");
+		const getSituationReportSpy = jest.spyOn(taxCalculator as any, "getSituationReport");
+		const getMonthlyProfitLossSpy = jest.spyOn(taxCalculator as any, "getMonthlyProfitLoss");
+		const getDarfsSpy = jest.spyOn(taxCalculator as any, "getDarfs");
+		const getMonthlySalesVolumeSpy = jest.spyOn(taxCalculator as any, "getMonthlySalesVolume");
+		const getAnnualExemptProfitSpy = jest.spyOn(taxCalculator as any, "getAnnualExemptProfit");
 
-		stockTaxCalculator.getTaxReport(year);
+		taxCalculator.getTaxReport(year);
 
 		expect(getMonthlySalesVolumeSpy).toHaveBeenNthCalledWith(1, year);
 		expect(getMonthlySalesVolumeSpy).toHaveBeenCalledTimes(2);
@@ -396,11 +397,11 @@ describe("StockTaxCalculator", () => {
 		expect(getMonthlyProfitLossSpy).toHaveBeenCalledTimes(1);
 		expect(getDarfsSpy).toHaveBeenCalledWith(
 			year,
-			stockTaxCalculator["getMonthlyProfitLoss"](year),
-			StockTaxCalculator["DARF_RATE"],
+			taxCalculator["getMonthlyProfitLoss"](year),
+			BrazilianStockTaxCalculator["DARF_RATE"],
 		);
 		expect(getDarfsSpy).toHaveBeenCalledTimes(1);
-		expect(getAnnualExemptProfitSpy).toHaveBeenCalledWith(year, stockTaxCalculator["getMonthlySalesVolume"](year));
+		expect(getAnnualExemptProfitSpy).toHaveBeenCalledWith(year, taxCalculator["getMonthlySalesVolume"](year));
 		expect(getAnnualExemptProfitSpy).toHaveBeenCalledTimes(1);
 	});
 });

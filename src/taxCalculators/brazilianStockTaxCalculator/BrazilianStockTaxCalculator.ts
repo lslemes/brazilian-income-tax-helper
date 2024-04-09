@@ -4,12 +4,12 @@ import Transaction, { AssetType, TransactionType } from "../../transaction/Trans
 import { MONTHS, MonthLabel } from "../../utils";
 import TaxCalculator, { TaxReport } from "../TaxCalculator";
 
-export default class StockTaxCalculator extends TaxCalculator {
+export default class BrazilianStockTaxCalculator extends TaxCalculator {
 	private static readonly DARF_RATE = 0.15;
 	private static readonly MAX_MONTHLY_SALES_VOLUME_EXEMPTION_THRESHOLD = 20000;
 
 	constructor(transactions: Transaction[]) {
-		super(transactions.filter((transaction) => transaction.asset.type === AssetType.Stock));
+		super(transactions.filter((transaction) => transaction.asset.type === AssetType.BrazilianStock));
 	}
 
 	private getMonthlySalesVolume(year: number): number[] {
@@ -39,7 +39,7 @@ export default class StockTaxCalculator extends TaxCalculator {
 		return MONTHS.filter(
 			(month) =>
 				monthlySalesVolume[month.value] > 0 &&
-				monthlySalesVolume[month.value] <= StockTaxCalculator.MAX_MONTHLY_SALES_VOLUME_EXEMPTION_THRESHOLD,
+				monthlySalesVolume[month.value] <= BrazilianStockTaxCalculator.MAX_MONTHLY_SALES_VOLUME_EXEMPTION_THRESHOLD,
 		)
 			.map((month) => this.getProfitByMonth(year, month.value))
 			.reduce((totalProfit, profit) => totalProfit + profit, 0);
@@ -49,11 +49,15 @@ export default class StockTaxCalculator extends TaxCalculator {
 		const monthlySalesVolume = this.getMonthlySalesVolume(year);
 		return MONTHS.filter(
 			(month) =>
-				monthlySalesVolume[month.value] > StockTaxCalculator.MAX_MONTHLY_SALES_VOLUME_EXEMPTION_THRESHOLD &&
+				monthlySalesVolume[month.value] > BrazilianStockTaxCalculator.MAX_MONTHLY_SALES_VOLUME_EXEMPTION_THRESHOLD &&
 				monthlyProfitLoss[month.value] > 0,
 		).map(
 			(month) =>
-				new Darf(year, month.label, getMonetaryValue(monthlyProfitLoss[month.value] * StockTaxCalculator.DARF_RATE)),
+				new Darf(
+					year,
+					month.label,
+					getMonetaryValue(monthlyProfitLoss[month.value] * BrazilianStockTaxCalculator.DARF_RATE),
+				),
 		);
 	}
 
@@ -62,7 +66,7 @@ export default class StockTaxCalculator extends TaxCalculator {
 	): TaxReport & { monthlySalesVolume: { month: MonthLabel; salesVolume: number }[]; annualExemptProfit: number } {
 		const monthlySalesVolume = this.getMonthlySalesVolume(year);
 		return {
-			...super.getTaxReport(year, StockTaxCalculator.DARF_RATE),
+			...super.getTaxReport(year, BrazilianStockTaxCalculator.DARF_RATE),
 			monthlySalesVolume: monthlySalesVolume.map((volume, i) => ({
 				month: MONTHS[i].label,
 				salesVolume: getMonetaryValue(volume),

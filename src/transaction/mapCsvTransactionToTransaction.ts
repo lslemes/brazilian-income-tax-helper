@@ -37,15 +37,15 @@ function getTransactionType(value: string): TransactionType {
 function getAssetType(value: string): AssetType {
 	switch (value) {
 		case "FII":
-			return AssetType.Fii;
+			return AssetType.BrazilianFii;
 		case "ação":
-			return AssetType.Stock;
+			return AssetType.BrazilianStock;
 		case "subscricao":
-			return AssetType.Subscription;
+			return AssetType.BrazilianSubscription;
 		case "etfFixa":
-			return AssetType.FixedIncomeEtf;
+			return AssetType.BrazilianFixedIncomeEtf;
 		case "etfVariavel":
-			return AssetType.VariableIncomeEtf;
+			return AssetType.BrazilianVariableIncomeEtf;
 		default:
 			throw new Error(`Unkwnown asset type ${value}.`);
 	}
