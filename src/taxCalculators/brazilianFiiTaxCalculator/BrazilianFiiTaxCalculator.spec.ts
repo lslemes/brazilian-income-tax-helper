@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
+import { AssetType } from "../../asset/Asset";
 import { FLOATING_POINT_PRECISION } from "../../testUtils";
-import { AssetType } from "../../transaction/Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
+import processBrazilianCsvTransaction, {
+	BrazilianCsvTransaction,
+} from "../../transaction/processBrazilianCsvTransaction";
 import BrazilianFiiTaxCalculator from "./BrazilianFiiTaxCalculator";
 
-describe("BrazilianFiiTaxCalculator", () => {
+describe(BrazilianFiiTaxCalculator.name, () => {
 	let taxCalculator: BrazilianFiiTaxCalculator;
 
 	beforeAll(async () => {
-		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
-		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
+		const csvTransactions: BrazilianCsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
+		const transactions = csvTransactions.map(processBrazilianCsvTransaction);
 		taxCalculator = new BrazilianFiiTaxCalculator(transactions);
 	});
 
@@ -29,7 +31,7 @@ describe("BrazilianFiiTaxCalculator", () => {
 		[2022, new Array(12).fill(0)],
 		[2023, new Array(12).fill(0)],
 		[2024, new Array(12).fill(0)],
-	])("getMonthlyProfitLoss(%p)", (year, expectedProfits) => {
+	])(`getMonthlyProfitLoss(%p)`, (year, expectedProfits) => {
 		expect(taxCalculator["getMonthlyProfitLoss"](year)).toStrictEqual(expectedProfits);
 	});
 

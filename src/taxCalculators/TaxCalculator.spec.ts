@@ -1,29 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
 import { FLOATING_POINT_PRECISION } from "../testUtils";
-import { TransactionType } from "../transaction/Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "../transaction/mapCsvTransactionToTransaction";
+import processBrazilianCsvTransaction, { BrazilianCsvTransaction } from "../transaction/processBrazilianCsvTransaction";
+import { BrazilianBuyTransaction } from "../transaction/tradeTransaction/buyTransaction/brazilianBuyTransaction/BrazilianBuyTransaction";
+import { InternationalBuyTransaction } from "../transaction/tradeTransaction/buyTransaction/internationalBuyTransaction/InternationalBuyTransaction";
+import { SellTransaction } from "../transaction/tradeTransaction/sellTransaction/SellTransaction";
 import TaxCalculator, { YearlyTaxData } from "./TaxCalculator";
 
-describe("TaxCalculator", () => {
-	describe("getYearlyTaxData", () => {
+describe(TaxCalculator.name, () => {
+	describe(TaxCalculator["getYearlyTaxData"].name, () => {
 		let yearlyTaxData: YearlyTaxData;
 
 		beforeAll(async () => {
-			const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
-			const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
+			const csvTransactions: BrazilianCsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
+			const transactions = csvTransactions.map(processBrazilianCsvTransaction);
 			yearlyTaxData = TaxCalculator["getYearlyTaxData"](transactions);
 		});
 
 		it("should return buy transactions with no profit/loss", async () => {
 			const transactions = yearlyTaxData.transactionsWithProfitLoss;
-			const buyTransactions = transactions.filter((transaction) => transaction.type === TransactionType.Buy);
-			for (const transaction of buyTransactions) expect(transaction.profitLoss).toBeNull();
+			const buyTransactions = transactions.filter(
+				(transaction): transaction is BrazilianBuyTransaction | InternationalBuyTransaction =>
+					transaction instanceof BrazilianBuyTransaction || transaction instanceof InternationalBuyTransaction,
+			);
+			for (const transaction of buyTransactions) expect(transaction).not.toHaveProperty("profitLoss");
 		});
 
 		it("should return sell transactions with profit/loss", async () => {
 			const transactions = yearlyTaxData.transactionsWithProfitLoss;
-			const sellTransactions = transactions.filter((transaction) => transaction.type === TransactionType.Sell);
+			const sellTransactions = transactions.filter(
+				(transaction): transaction is SellTransaction => transaction instanceof SellTransaction,
+			);
 			for (const transaction of sellTransactions) expect(transaction.profitLoss).toEqual(expect.any(Number));
 		});
 

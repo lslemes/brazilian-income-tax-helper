@@ -1,13 +1,15 @@
+import { AssetType } from "../../asset/Asset";
 import Darf from "../../darf/Darf";
 import { getMonetaryValue } from "../../taxMath/taxMathUtils";
-import Transaction, { AssetType } from "../../transaction/Transaction";
+import { BrazilianBuyTransaction } from "../../transaction/tradeTransaction/buyTransaction/brazilianBuyTransaction/BrazilianBuyTransaction";
+import { BrazilianSellTransaction } from "../../transaction/tradeTransaction/sellTransaction/brazilianSellTransaction/BrazilianSellTransaction";
 import { MONTHS } from "../../utils";
 import TaxCalculator, { TaxReport } from "../TaxCalculator";
 
 export default class BrazilianEtfTaxCalculator extends TaxCalculator {
 	private static readonly DARF_RATE = 0.15;
 
-	constructor(transactions: Transaction[]) {
+	constructor(transactions: (BrazilianBuyTransaction | BrazilianSellTransaction)[]) {
 		super(
 			transactions.filter(
 				(transaction) =>
@@ -21,12 +23,13 @@ export default class BrazilianEtfTaxCalculator extends TaxCalculator {
 		const monthlyVariableIncomeEtfProfitLoss = MONTHS.map((month) =>
 			this.transactions
 				.filter(
-					(transaction) =>
+					(transaction): transaction is BrazilianSellTransaction =>
 						transaction.date.getFullYear() === year &&
 						transaction.date.getMonth() === month.value &&
-						transaction.asset.type === AssetType.BrazilianVariableIncomeEtf,
+						transaction.asset.type === AssetType.BrazilianVariableIncomeEtf &&
+						transaction instanceof BrazilianSellTransaction,
 				)
-				.reduce((totalProfitLoss, transcation) => totalProfitLoss + (transcation.profitLoss ?? 0), 0),
+				.reduce((totalProfitLoss, transcation) => totalProfitLoss + transcation.profitLoss, 0),
 		);
 		const darfs = MONTHS.filter((month) => monthlyVariableIncomeEtfProfitLoss[month.value] > 0).map(
 			(month) =>

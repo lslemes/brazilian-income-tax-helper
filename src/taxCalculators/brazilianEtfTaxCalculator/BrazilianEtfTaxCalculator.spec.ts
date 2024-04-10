@@ -1,18 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
+import { AssetType } from "../../asset/Asset";
 import Darf from "../../darf/Darf";
 import { FLOATING_POINT_PRECISION } from "../../testUtils";
-import { AssetType } from "../../transaction/Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
+import processBrazilianCsvTransaction, {
+	BrazilianCsvTransaction,
+} from "../../transaction/processBrazilianCsvTransaction";
 import { MONTHS } from "../../utils";
 import BrazilianEtfTaxCalculator from "./BrazilianEtfTaxCalculator";
 
-describe("BrazilianEtfTaxCalculator", () => {
+describe(BrazilianEtfTaxCalculator.name, () => {
 	let taxCalculator: BrazilianEtfTaxCalculator;
 
 	beforeAll(async () => {
-		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
-		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
+		const csvTransactions: BrazilianCsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
+		const transactions = csvTransactions.map(processBrazilianCsvTransaction);
 		taxCalculator = new BrazilianEtfTaxCalculator(transactions);
 	});
 

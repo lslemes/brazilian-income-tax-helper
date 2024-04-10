@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import csv from "csvtojson";
+import { AssetType } from "../../asset/Asset";
 import Darf from "../../darf/Darf";
-import { AssetType } from "../../transaction/Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "../../transaction/mapCsvTransactionToTransaction";
+import processBrazilianCsvTransaction, {
+	BrazilianCsvTransaction,
+} from "../../transaction/processBrazilianCsvTransaction";
 import { MONTHS } from "../../utils";
 import BrazilianSubscriptionTaxCalculator from "./BrazilianSubscriptionTaxCalculator";
 
-describe("BrazilianSubscriptionTaxCalculator", () => {
+describe(BrazilianSubscriptionTaxCalculator.name, () => {
 	let taxCalculator: BrazilianSubscriptionTaxCalculator;
 
 	beforeAll(async () => {
-		const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
-		const transactions = csvTransactions.map(mapCsvTransactionToTransaction);
+		const csvTransactions: BrazilianCsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
+		const transactions = csvTransactions.map(processBrazilianCsvTransaction);
 		taxCalculator = new BrazilianSubscriptionTaxCalculator(transactions);
 	});
 

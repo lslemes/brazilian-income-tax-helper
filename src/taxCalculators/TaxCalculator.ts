@@ -1,6 +1,9 @@
 import Darf from "../darf/Darf";
 import { getMonetaryValue, getUpdatedAveragePrice } from "../taxMath/taxMathUtils";
-import Transaction, { TransactionType } from "../transaction/Transaction";
+import { Transaction } from "../transaction/Transaction";
+import { BrazilianBuyTransaction } from "../transaction/tradeTransaction/buyTransaction/brazilianBuyTransaction/BrazilianBuyTransaction";
+import { SellTransaction } from "../transaction/tradeTransaction/sellTransaction/SellTransaction";
+import { BrazilianSellTransaction } from "../transaction/tradeTransaction/sellTransaction/brazilianSellTransaction/BrazilianSellTransaction";
 import { MONTHS, MonthLabel } from "../utils";
 
 interface Situation {
@@ -66,25 +69,23 @@ export default abstract class TaxCalculator {
 					currentYear++;
 				}
 
-				const { quantity, value, type } = transaction;
 				const assetCode = transaction.asset.code;
 				const position = positionByAssetCode.get(assetCode) ?? 0;
 				const averagePrice = averagePriceByAssetCode.get(assetCode) ?? 0;
 
-				switch (type) {
-					case TransactionType.Buy:
-						positionByAssetCode.set(assetCode, position + quantity);
-						averagePriceByAssetCode.set(assetCode, getUpdatedAveragePrice(position, averagePrice, quantity, value));
-						break;
-					case TransactionType.Sell:
-						transaction.profitLoss = value - quantity * averagePrice;
-						if (position - quantity <= 0) {
-							averagePriceByAssetCode.delete(assetCode);
-							positionByAssetCode.delete(assetCode);
-						} else {
-							positionByAssetCode.set(assetCode, position - quantity);
-						}
-						break;
+				if (transaction instanceof BrazilianBuyTransaction) {
+					const { quantity, value } = transaction;
+					positionByAssetCode.set(assetCode, position + quantity);
+					averagePriceByAssetCode.set(assetCode, getUpdatedAveragePrice(position, averagePrice, quantity, value));
+				} else if (transaction instanceof BrazilianSellTransaction) {
+					const { quantity, value } = transaction;
+					transaction.profitLoss = value - quantity * averagePrice;
+					if (position - quantity <= 0) {
+						averagePriceByAssetCode.delete(assetCode);
+						positionByAssetCode.delete(assetCode);
+					} else {
+						positionByAssetCode.set(assetCode, position - quantity);
+					}
 				}
 
 				return transaction;
@@ -98,13 +99,14 @@ export default abstract class TaxCalculator {
 	}
 
 	protected getMonthlyProfitLoss(year: number): number[] {
-		const transactions = this.transactions.filter((transaction) => transaction.date.getFullYear() === year);
+		const transactions = this.transactions.filter(
+			(transaction): transaction is SellTransaction =>
+				transaction.date.getFullYear() === year && transaction instanceof SellTransaction,
+		);
 		return MONTHS.map((month) =>
 			transactions
-				.filter(
-					(transaction) => transaction.type === TransactionType.Sell && transaction.date.getMonth() === month.value,
-				)
-				.reduce((totalProfitLoss, transaction) => totalProfitLoss + (transaction.profitLoss ?? 0), 0),
+				.filter((transaction) => transaction.date.getMonth() === month.value)
+				.reduce((totalProfitLoss, transaction) => totalProfitLoss + transaction.profitLoss, 0),
 		);
 	}
 

@@ -3,16 +3,15 @@ import BrazilianEtfTaxCalculator from "./taxCalculators/brazilianEtfTaxCalculato
 import BrazilianFiiTaxCalculator from "./taxCalculators/brazilianFiiTaxCalculator/BrazilianFiiTaxCalculator";
 import BrazilianStockTaxCalculator from "./taxCalculators/brazilianStockTaxCalculator/BrazilianStockTaxCalculator";
 import BrazilianSubscriptionTaxCalculator from "./taxCalculators/brazilianSubscriptionTaxCalculator/BrazilianSubscriptionTaxCalculator";
-import Transaction from "./transaction/Transaction";
-import mapCsvTransactionToTransaction, { CsvTransaction } from "./transaction/mapCsvTransactionToTransaction";
+import processBrazilianCsvTransaction, { BrazilianCsvTransaction } from "./transaction/processBrazilianCsvTransaction";
 
 async function main() {
-	const csvTransactions: CsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
-	const transactions: Transaction[] = csvTransactions.map(mapCsvTransactionToTransaction);
+	const brazilianCsvTransactions: BrazilianCsvTransaction[] = await csv().fromFile("data/brazilianTransactions.csv");
+	const brazilianTransactions = brazilianCsvTransactions.map(processBrazilianCsvTransaction);
 
-	const brazilianFiiTaxCalculator = new BrazilianFiiTaxCalculator(transactions);
-	const brazilianStockTaxCalculator = new BrazilianStockTaxCalculator(transactions);
-	const brazilianEtfTaxCalculator = new BrazilianEtfTaxCalculator(transactions);
-	const brazilianSubscriptionTaxCalculator = new BrazilianSubscriptionTaxCalculator(transactions);
+	const brazilianFiiTaxCalculator = new BrazilianFiiTaxCalculator(brazilianTransactions);
+	const brazilianStockTaxCalculator = new BrazilianStockTaxCalculator(brazilianTransactions);
+	const brazilianEtfTaxCalculator = new BrazilianEtfTaxCalculator(brazilianTransactions);
+	const brazilianSubscriptionTaxCalculator = new BrazilianSubscriptionTaxCalculator(brazilianTransactions);
 }
 main();
